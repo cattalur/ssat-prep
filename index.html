@@ -66,8 +66,7 @@ h2{font-size:18px;font-weight:800;color:#0f2545}
 // ── VOCAB (loaded from vocab.txt) ─────────────────────────────────────
 let BUILTIN_VOCAB=[];
 function parseVocab(text){
-  return text.split('
-').filter(l=>l.trim()&&!l.startsWith('#')).map((l,i)=>{
+  return text.split('\n').filter(l=>l.trim()&&!l.startsWith('#')).map((l,i)=>{
     const p=l.split(' | ');
     if(p.length<6)return null;
     return{id:i+1,w:p[0].trim(),pos:p[1].trim(),lvl:parseInt(p[2].trim()),d:p[3].trim(),ex:p[4].trim(),root:p[5].trim()==='none'?null:p[5].trim()};
@@ -150,7 +149,7 @@ function renderHome(){
 // ── VOCAB ─────────────────────────────────────────────────────
 const VSTOP=new Set(['a','an','the','is','to','of','and','or','that','it','as','in','by','for','with','its','be','are','was','were','has','have','had','not','at','on','from','about','s','do','does','their','them','they','one','this','which','very','so','such','more','most','also','into','than']);
 function scoreMatch(inp,def){
-  const tok=s=>s.toLowerCase().replace(/[^a-zs]/g,'').split(/s+/).filter(w=>w.length>2&&!VSTOP.has(w));
+  const tok=s=>s.toLowerCase().replace(/[^a-z\s]/g,'').split(/\s+/).filter(w=>w.length>2&&!VSTOP.has(w));
   const dt=tok(def);if(!dt.length)return 0;
   const it=tok(inp);let m=0;
   dt.forEach(d=>{if(it.some(i=>i===d||(d.length>=4&&i.length>=4&&(d.startsWith(i.slice(0,4))||i.startsWith(d.slice(0,4)))))) m++;});
