@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>SSAT Prep — Daily Verbal Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fdf6ee;
+    --card: #ffffff;
+    --ink: #1a1208;
+    --muted: #7a6a55;
+    --accent: #d4601a;
+    --accent2: #2b6cb0;
+    --green: #276749;
+    --red: #b91c1c;
+    --gold: #c6952a;
+    --border: #e8ddd0;
+    --shadow: 0 4px 24px rgba(26,18,8,0.10);
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; min-height: 100vh; padding: 0 0 40px; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ── HOME ── */
+  #home {
+    background: linear-gradient(160deg, #1a3a5c 0%, #2b6cb0 60%, #d4601a 100%);
+    align-items: center; justify-content: center; gap: 0; padding: 40px 24px;
+    position: relative; overflow: hidden;
+  }
+  #home::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .home-badge {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .home-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+    line-height: 1.05;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+  }
+  .home-sub {
+    color: rgba(255,255,255,0.75);
+    font-size: 17px;
+    font-weight: 300;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .home-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    max-width: 480px;
+    margin-bottom: 28px;
+  }
+  .home-stat-card {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 14px;
+    padding: 18px 14px;
+    text-align: center;
+    color: #fff;
+    backdrop-filter: blur(10px);
+  }
+  .home-stat-card .stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    display: block;
+  }
+  .home-stat-card .stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-top: 2px;
+    display: block;
+  }
+  .btn-primary {
+    background: #fff;
+    color: var(--accent);
+    border: none;
+    border-radius: 100px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    padding: 18px 48px;
+    cursor: pointer;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    transition: transform 0.15s, box-shadow 0.15s;
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 14px;
+  }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-secondary {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1.5px solid rgba(255,255,255,0.35);
+    border-radius: 100px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 14px 36px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 320px;
+    transition: background 0.15s;
+  }
+  .btn-secondary:active { background: rgba(255,255,255,0.25); }
+
+  /* ── QUIZ SETUP ── */
+  #setup {
+    background: var(--bg);
+    padding: 48px 24px 40px;
+    gap: 0;
+  }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: none; border: none; color: var(--muted);
+    font-size: 15px; font-weight: 500; cursor: pointer;
+    padding: 0; margin-bottom: 28px;
+  }
+  .setup-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 34px; font-weight: 700; margin-bottom: 6px;
+  }
+  .setup-sub { color: var(--muted); font-size: 15px; margin-bottom: 32px; }
+  .option-group { margin-bottom: 28px; }
+  .option-label { font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; display: block; }
+  .option-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    border: 2px solid var(--border);
+    background: var(--card);
+    border-radius: 100px;
+    padding: 10px 20px;
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    transition: all 0.15s; color: var(--ink);
+  }
+  .chip.selected { border-color: var(--accent); background: #fff4ee; color: var(--accent); }
+  .start-quiz-btn {
+    background: var(--accent);
+    color: #fff; border: none; border-radius: 100px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px; font-weight: 600;
+    padding: 20px 0; width: 100%;
+    cursor: pointer; margin-top: 12px;
+    box-shadow: 0 6px 24px rgba(212,96,26,0.35);
+    transition: transform 0.15s;
+  }
+  .start-quiz-btn:active { transform: scale(0.98); }
+
+  /* ── QUIZ ── */
+  #quiz { background: var(--bg); padding: 0; gap: 0; }
+  .quiz-header {
+    background: var(--card);
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .quiz-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .quiz-type-badge {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 5px 12px; border-radius: 100px;
+  }
+  .quiz-type-badge.synonym { background: #dbeafe; color: #1e40af; }
+  .quiz-type-badge.analogy { background: #fce7f3; color: #9d174d; }
+  .quiz-counter { font-size: 14px; font-weight: 600; color: var(--muted); }
+  .progress-bar { height: 5px; background: var(--border); border-radius: 100px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 100px; transition: width 0.4s ease; }
+
+  .quiz-body { padding: 28px 24px; flex: 1; }
+  .q-num { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; font-weight: 700; line-height: 1.25;
+    margin-bottom: 8px; color: var(--ink);
+  }
+  .q-instruction { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+  .choices { display: flex; flex-direction: column; gap: 12px; }
+  .choice-btn {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card); border: 2px solid var(--border);
+    border-radius: 14px; padding: 16px 18px;
+    text-align: left; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-size: 16px; font-weight: 400; color: var(--ink);
+    transition: all 0.15s; width: 100%;
+  }
+  .choice-btn:active { transform: scale(0.99); }
+  .choice-btn.selected { border-color: var(--accent2); background: #ebf4ff; }
+  .choice-btn.correct { border-color: var(--green); background: #f0fdf4; }
+  .choice-btn.wrong { border-color: var(--red); background: #fef2f2; }
+  .choice-letter {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--border); display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0; transition: all 0.15s;
+  }
+  .choice-btn.selected .choice-letter { background: var(--accent2); color: #fff; }
+  .choice-btn.correct .choice-letter { background: var(--green); color: #fff; }
+  .choice-btn.wrong .choice-letter { background: var(--red); color: #fff; }
+
+  .quiz-footer {
+    padding: 16px 24px 32px;
+    background: var(--bg);
+  }
+  .nav-btn {
+    background: var(--ink); color: #fff; border: none;
+    border-radius: 100px; font-family: 'DM Sans', sans-serif;
+    font-size: 17px; font-weight: 600; padding: 18px 0;
+    width: 100%; cursor: pointer; transition: opacity 0.15s;
+  }
+  .nav-btn:disabled { opacity: 0.35; }
+  .skip-btn {
+    background: none; border: none; color: var(--muted);
+    font-size: 15px; font-weight: 500; cursor: pointer;
+    width: 100%; padding: 14px; margin-top: 4px;
+  }
+
+  /* ── RESULTS ── */
+  #results { background: var(--bg); padding: 40px 24px; gap: 0; }
+  .results-hero {
+    background: linear-gradient(135deg, #1a3a5c, #2b6cb0);
+    border-radius: 24px; padding: 32px 24px; text-align: center;
+    color: #fff; margin-bottom: 24px;
+  }
+  .results-emoji { font-size: 52px; margin-bottom: 12px; }
+  .results-title { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; margin-bottom: 6px; }
+  .results-sub { font-size: 16px; opacity: 0.8; }
+  .score-ring {
+    width: 110px; height: 110px; margin: 20px auto 8px;
+    position: relative; display: flex; align-items: center; justify-content: center;
+  }
+  .score-ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+  .score-ring-val { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; color: #fff; }
+  .score-ring-label { font-size: 12px; opacity: 0.7; }
+
+  .results-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-bottom: 24px;
+  }
+  .stat-box {
+    background: var(--card); border-radius: 16px; padding: 18px;
+    border: 1px solid var(--border);
+  }
+  .stat-box .val {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; font-weight: 700; display: block; margin-bottom: 2px;
+  }
+  .stat-box .val.green { color: var(--green); }
+  .stat-box .val.red { color: var(--red); }
+  .stat-box .val.gold { color: var(--gold); }
+  .stat-box .label { font-size: 12px; color: var(--muted); font-weight: 500; }
+
+  .section-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; margin-bottom: 16px; }
+  .review-card {
+    background: var(--card); border-radius: 16px; padding: 18px;
+    border: 1px solid var(--border); margin-bottom: 12px;
+  }
+  .review-card .rc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .review-card .rc-q { font-weight: 600; font-size: 15px; flex: 1; }
+  .review-card .rc-status { font-size: 20px; flex-shrink: 0; }
+  .answer-row { display: flex; gap: 8px; margin-bottom: 4px; }
+  .answer-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; min-width: 58px; color: var(--muted); padding-top: 2px; }
+  .answer-text { font-size: 14px; }
+  .answer-text.correct-ans { color: var(--green); font-weight: 600; }
+  .answer-text.wrong-ans { color: var(--red); text-decoration: line-through; }
+  .explanation {
+    margin-top: 10px; padding: 10px 12px;
+    background: #f8f5f0; border-radius: 10px;
+    font-size: 13px; color: var(--muted); line-height: 1.5;
+  }
+
+  .insights-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; margin-bottom: 12px;
+  }
+  .insights-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .insights-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .tag {
+    background: #f0f7ff; color: var(--accent2);
+    border-radius: 100px; padding: 5px 12px;
+    font-size: 12px; font-weight: 600;
+  }
+  .tag.weak { background: #fff1f2; color: var(--red); }
+  .tag.strength { background: #f0fdf4; color: var(--green); }
+
+  .trend-bar { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  .trend-label { font-size: 13px; color: var(--muted); min-width: 80px; }
+  .trend-track { flex: 1; height: 8px; background: var(--border); border-radius: 100px; overflow: hidden; }
+  .trend-fill { height: 100%; border-radius: 100px; transition: width 0.8s ease; }
+  .trend-fill.s { background: var(--accent2); }
+  .trend-fill.a { background: #9333ea; }
+  .trend-pct { font-size: 13px; font-weight: 600; min-width: 34px; text-align: right; }
+
+  .results-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+  .btn-ink {
+    background: var(--ink); color: #fff; border: none;
+    border-radius: 100px; font-family: 'DM Sans', sans-serif;
+    font-size: 17px; font-weight: 600; padding: 18px;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .btn-outline {
+    background: transparent; color: var(--ink);
+    border: 2px solid var(--border); border-radius: 100px;
+    font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 600;
+    padding: 18px; cursor: pointer;
+  }
+
+  /* ── PROGRESS HISTORY ── */
+  #history { background: var(--bg); padding: 40px 24px; gap: 0; }
+  .history-empty { text-align: center; padding: 60px 0; color: var(--muted); font-size: 16px; }
+  .session-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 18px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .session-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: linear-gradient(135deg, #2b6cb0, #d4601a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0; color: #fff;
+    font-family: 'Playfair Display', serif; font-weight: 700;
+  }
+  .session-info { flex: 1; }
+  .session-date { font-size: 13px; color: var(--muted); margin-bottom: 2px; }
+  .session-score { font-size: 17px; font-weight: 700; }
+  .session-detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .overall-progress {
+    background: linear-gradient(135deg, #1a3a5c, #2b6cb0);
+    border-radius: 24px; padding: 28px 20px; color: #fff; margin-bottom: 24px;
+  }
+  .overall-progress h3 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 16px; }
+  .overall-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .overall-val { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; }
+  .overall-label { font-size: 12px; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+  /* ── VOCAB REFERENCE ── */
+  #vocab { background: var(--bg); padding: 40px 24px; gap: 0; }
+  .vocab-search {
+    background: var(--card); border: 2px solid var(--border);
+    border-radius: 12px; padding: 14px 16px;
+    font-size: 16px; width: 100%; margin-bottom: 20px;
+    font-family: 'DM Sans', sans-serif; outline: none;
+    transition: border-color 0.15s;
+  }
+  .vocab-search:focus { border-color: var(--accent2); }
+  .vocab-item {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px 18px; margin-bottom: 10px;
+  }
+  .vocab-word { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; }
+  .vocab-pos { font-size: 12px; color: var(--gold); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin: 2px 0 6px; }
+  .vocab-def { font-size: 14px; color: var(--muted); line-height: 1.5; }
+  .vocab-syn { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .vocab-syn span {
+    background: #f0f7ff; color: var(--accent2);
+    border-radius: 100px; padding: 3px 10px; font-size: 12px; font-weight: 600;
+  }
+
+  /* ── NAV BAR ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--card); border-top: 1px solid var(--border);
+    display: flex; z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    padding: 10px 4px; cursor: pointer; background: none; border: none;
+    color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500;
+    transition: color 0.15s;
+  }
+  .nav-item.active { color: var(--accent); }
+  .nav-item svg { width: 22px; height: 22px; margin-bottom: 3px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  body.in-quiz .bottom-nav { display: none; }
+
+  /* ── STRATEGY TIP ── */
+  .strategy-tip {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 14px; padding: 14px 16px; margin-bottom: 20px;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .strategy-tip .tip-icon { font-size: 20px; flex-shrink: 0; }
+  .strategy-tip .tip-text { font-size: 13px; color: #78350f; line-height: 1.5; }
+  .strategy-tip .tip-title { font-weight: 700; margin-bottom: 2px; }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div class="home-badge">✦ SSAT Middle Level Prep</div>
+  <div class="home-title">Daily<br>Verbal<br>Practice</div>
+  <div class="home-sub">Synonyms · Analogies · Progress Tracking</div>
+  <div class="home-cards" id="homeStats">
+    <div class="home-stat-card">
+      <span class="stat-val" id="statStreak">0</span>
+      <span class="stat-label">Day Streak 🔥</span>
+    </div>
+    <div class="home-stat-card">
+      <span class="stat-val" id="statSessions">0</span>
+      <span class="stat-label">Sessions Done</span>
+    </div>
+    <div class="home-stat-card">
+      <span class="stat-val" id="statAvgScore">—</span>
+      <span class="stat-label">Avg. Score</span>
+    </div>
+    <div class="home-stat-card">
+      <span class="stat-val" id="statTotal">0</span>
+      <span class="stat-label">Questions Seen</span>
+    </div>
+  </div>
+  <button class="btn-primary" onclick="showSetup()">Start Today's Quiz ✦</button>
+  <button class="btn-secondary" onclick="showScreen('history')">View My Progress</button>
+</div>
+
+<!-- SETUP -->
+<div id="setup" class="screen">
+  <button class="back-btn" onclick="showScreen('home')">← Back</button>
+  <div class="setup-title">Set Up Quiz</div>
+  <div class="setup-sub">Customize today's practice session</div>
+
+  <div class="option-group">
+    <span class="option-label">Question Types</span>
+    <div class="option-chips">
+      <div class="chip selected" data-group="type" data-val="both" onclick="selectChip(this,'type')">Both</div>
+      <div class="chip" data-group="type" data-val="synonyms" onclick="selectChip(this,'type')">Synonyms Only</div>
+      <div class="chip" data-group="type" data-val="analogies" onclick="selectChip(this,'type')">Analogies Only</div>
+    </div>
+  </div>
+
+  <div class="option-group">
+    <span class="option-label">Number of Questions</span>
+    <div class="option-chips">
+      <div class="chip" data-group="count" data-val="10" onclick="selectChip(this,'count')">10</div>
+      <div class="chip selected" data-group="count" data-val="20" onclick="selectChip(this,'count')">20</div>
+      <div class="chip" data-group="count" data-val="30" onclick="selectChip(this,'count')">30</div>
+      <div class="chip" data-group="count" data-val="60" onclick="selectChip(this,'count')">Full Test (60)</div>
+    </div>
+  </div>
+
+  <div class="option-group">
+    <span class="option-label">Difficulty Focus</span>
+    <div class="option-chips">
+      <div class="chip selected" data-group="diff" data-val="mixed" onclick="selectChip(this,'diff')">Mixed</div>
+      <div class="chip" data-group="diff" data-val="easy" onclick="selectChip(this,'diff')">Easier First</div>
+      <div class="chip" data-group="diff" data-val="hard" onclick="selectChip(this,'diff')">Challenging</div>
+      <div class="chip" data-group="diff" data-val="weak" onclick="selectChip(this,'diff')">My Weak Areas</div>
+    </div>
+  </div>
+
+  <button class="start-quiz-btn" onclick="startQuiz()">Begin Practice →</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <div class="quiz-meta">
+      <span class="quiz-type-badge" id="qTypeBadge">Synonym</span>
+      <span class="quiz-counter" id="qCounter">1 / 20</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="qProgress" style="width:5%"></div></div>
+  </div>
+  <div class="quiz-body">
+    <div class="q-num" id="qNum">Question 1</div>
+    <div class="q-text" id="qText">GENERATE</div>
+    <div class="q-instruction" id="qInstruction">Choose the word closest in meaning</div>
+    <div class="choices" id="choicesContainer"></div>
+  </div>
+  <div class="quiz-footer">
+    <button class="nav-btn" id="nextBtn" onclick="nextQuestion()" disabled>Next Question →</button>
+    <button class="skip-btn" onclick="skipQuestion()">Skip this question</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="screen">
+  <div class="results-hero">
+    <div class="results-emoji" id="resultsEmoji">🎉</div>
+    <div class="results-title" id="resultsTitle">Great Work!</div>
+    <div class="results-sub" id="resultsSub">Today's session complete</div>
+    <div class="score-ring">
+      <svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="48" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="8"/><circle cx="55" cy="55" r="48" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-dasharray="301.6" id="scoreArc" stroke-dashoffset="301.6"/></svg>
+      <div style="text-align:center">
+        <div class="score-ring-val" id="scoreVal">—</div>
+        <div class="score-ring-label">score</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="results-grid">
+    <div class="stat-box"><span class="val green" id="rCorrect">0</span><span class="label">✓ Correct</span></div>
+    <div class="stat-box"><span class="val red" id="rWrong">0</span><span class="label">✗ Wrong</span></div>
+    <div class="stat-box"><span class="val gold" id="rSkipped">0</span><span class="label">◇ Skipped</span></div>
+    <div class="stat-box"><span class="val" id="rTime">0:00</span><span class="label">⏱ Time</span></div>
+  </div>
+
+  <div id="insightsSection"></div>
+
+  <div class="section-title">📖 Review All Questions</div>
+  <div id="reviewContainer"></div>
+
+  <div class="results-actions">
+    <button class="btn-ink" onclick="startNewQuiz()">Practice Again</button>
+    <button class="btn-outline" onclick="showScreen('home')">Back to Home</button>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div id="history" class="screen">
+  <button class="back-btn" onclick="showScreen('home')">← Back</button>
+  <div class="setup-title">My Progress</div>
+  <div id="historyContent"></div>
+</div>
+
+<!-- VOCAB -->
+<div id="vocab" class="screen">
+  <div class="setup-title">Vocabulary Guide</div>
+  <div class="setup-sub">All words from the question bank</div>
+  <input class="vocab-search" type="search" placeholder="Search words..." oninput="filterVocab(this.value)" id="vocabSearch">
+  <div id="vocabList"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showScreen('home')" id="nav-home">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home
+  </button>
+  <button class="nav-item" onclick="showScreen('history')" id="nav-history">
+    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Progress
+  </button>
+  <button class="nav-item" onclick="showScreen('vocab')" id="nav-vocab">
+    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Vocab
+  </button>
+</nav>
+
+<script>
+// ══════════════════════════════════════════
+// QUESTION BANK
+// ══════════════════════════════════════════
+const QUESTIONS = [
+  // ── SYNONYMS (difficulty: 1=easy, 2=medium, 3=hard) ──
+  {id:1, type:"synonym", word:"GENERATE", choices:["power","spin","burn","produce","consume"], answer:3, difficulty:1,
+    explanation:"Generate means to produce or create something. 'Produce' is the closest synonym."},
+  {id:2, type:"synonym", word:"COSMIC", choices:["unknown","obscure","bright","celestial","elective"], answer:3, difficulty:2,
+    explanation:"Cosmic relates to the universe and outer space — 'celestial' means relating to the sky/heavens."},
+  {id:3, type:"synonym", word:"BLAST", choices:["weight","push","explosion","instant","drill"], answer:2, difficulty:1,
+    explanation:"A blast is a sudden, violent explosion or burst of energy."},
+  {id:4, type:"synonym", word:"SOLID", choices:["firm","pouty","massive","sticky","harsh"], answer:0, difficulty:1,
+    explanation:"Solid means firm and stable — not easily moved or changed."},
+  {id:5, type:"synonym", word:"NULLIFY", choices:["engage","cancel","dispute","melt","absorb"], answer:1, difficulty:2,
+    explanation:"To nullify means to make legally void or to cancel the effect of something."},
+  {id:6, type:"synonym", word:"COMPEL", choices:["move along","force to act","manufacture","go ahead","invite to stay"], answer:1, difficulty:2,
+    explanation:"Compel means to force someone to do something, often against their will."},
+  {id:7, type:"synonym", word:"APEX", choices:["predator","peak","valley","equator","incline"], answer:1, difficulty:1,
+    explanation:"Apex means the top or peak — the highest point of something."},
+  {id:8, type:"synonym", word:"SUPREME", choices:["fanatical","legion","ultimate","most expensive","tallest"], answer:2, difficulty:1,
+    explanation:"Supreme means highest in rank, authority, or degree — ultimate."},
+  {id:9, type:"synonym", word:"HOOKED", choices:["captivated","complicated","surrounded","abusive","weak-willed"], answer:0, difficulty:2,
+    explanation:"Hooked means captivated or addicted — completely absorbed by something."},
+  {id:10, type:"synonym", word:"FROCK", choices:["slipper","table","coin","power","dress"], answer:4, difficulty:2,
+    explanation:"A frock is a type of dress, especially one worn by women or girls."},
+  {id:11, type:"synonym", word:"SPLENDID", choices:["magnificent","splintered","separate","healing","sweet"], answer:0, difficulty:1,
+    explanation:"Splendid means magnificent, grand, or impressive in appearance."},
+  {id:12, type:"synonym", word:"NUCLEUS", choices:["radiation","atom","core","radius","border"], answer:2, difficulty:1,
+    explanation:"Nucleus means the central and most important part — the core."},
+  {id:13, type:"synonym", word:"EXTERIOR", choices:["protected","outside","relevant","mysterious","different"], answer:1, difficulty:1,
+    explanation:"Exterior refers to the outer surface or the outside of something."},
+  {id:14, type:"synonym", word:"CAST", choices:["announce","assemble","pour","represent","throw"], answer:4, difficulty:1,
+    explanation:"Cast means to throw something, like casting a fishing line or a stone."},
+  {id:15, type:"synonym", word:"BARBED", choices:["buried","collected","slight","spiked","upright"], answer:3, difficulty:2,
+    explanation:"Barbed means having sharp projecting points (spikes), or cutting and hurtful in tone."},
+  {id:16, type:"synonym", word:"CONSTANT", choices:["annoying","intermittent","substantial","permanent","loud"], answer:3, difficulty:1,
+    explanation:"Constant means continuous, unchanging, or permanent — always present."},
+  {id:17, type:"synonym", word:"BREACH", choices:["coast","bark","seal","lecture","break"], answer:4, difficulty:2,
+    explanation:"A breach is a gap, break, or violation — like a breach in a wall or a contract."},
+  {id:18, type:"synonym", word:"SCOUR", choices:["leer","scrutinize","absorb","grimace","invigorate"], answer:1, difficulty:2,
+    explanation:"To scour means to search thoroughly, or to scrutinize carefully."},
+  {id:19, type:"synonym", word:"SWEEP", choices:["under","bury","knock","hide","brush"], answer:4, difficulty:1,
+    explanation:"To sweep means to brush or move something with a broad, curving motion."},
+  {id:20, type:"synonym", word:"CORRELATION", choices:["integration","disturbance","association","correction","election"], answer:2, difficulty:2,
+    explanation:"Correlation means a relationship or association between two things."},
+  {id:21, type:"synonym", word:"SUBSIDY", choices:["credit score","financial aid","official document","intended result","powerful company"], answer:1, difficulty:3,
+    explanation:"A subsidy is money given by a government or organization to support an activity — financial aid."},
+  {id:22, type:"synonym", word:"CASTIGATE", choices:["berate","muddle","remove","perfume","align"], answer:0, difficulty:3,
+    explanation:"To castigate means to reprimand or criticize severely — to berate someone."},
+  {id:23, type:"synonym", word:"GLOSS", choices:["floor","illness","egg","luster","trip"], answer:3, difficulty:2,
+    explanation:"Gloss refers to a shiny surface quality — luster."},
+  {id:24, type:"synonym", word:"SHIRK", choices:["enable","stab","avoid","don","prop"], answer:2, difficulty:2,
+    explanation:"To shirk means to avoid a duty or responsibility."},
+  {id:25, type:"synonym", word:"ATONE", choices:["die for a cause","demand repayment","curry favor","make amends","spread influence"], answer:3, difficulty:3,
+    explanation:"To atone means to make amends for a wrongdoing — to compensate for something bad."},
+  {id:26, type:"synonym", word:"BEDEVIL", choices:["enchant","bore","torment","scorn","observe"], answer:2, difficulty:3,
+    explanation:"To bedevil means to cause continuous trouble — to torment or plague someone."},
+  {id:27, type:"synonym", word:"EVOKE", choices:["antagonize","scourge","burn","elicit","survey"], answer:3, difficulty:3,
+    explanation:"To evoke means to bring forth or elicit a feeling, memory, or response."},
+  {id:28, type:"synonym", word:"CONSTRUE", choices:["interpret","misrepresent","flail","propagate","relinquish"], answer:0, difficulty:3,
+    explanation:"To construe means to interpret or understand something in a particular way."},
+  {id:29, type:"synonym", word:"PALATABLE", choices:["invigorating","consumptive","acceptable","stacked","doubtless"], answer:2, difficulty:3,
+    explanation:"Palatable means acceptable or agreeable — pleasant enough to accept."},
+  {id:30, type:"synonym", word:"FERVENT", choices:["boiling","passionate","angry","stubborn","joyful"], answer:1, difficulty:2,
+    explanation:"Fervent means having or showing intense feeling — passionate and enthusiastic."},
+  {id:31, type:"synonym", word:"OBSCURE", choices:["famous","unclear","hidden","foreign","dull"], answer:1, difficulty:2,
+    explanation:"Obscure means not clear or well-known — unclear or hidden from view."},
+  {id:32, type:"synonym", word:"FRUGAL", choices:["happy","thrifty","boring","honest","thin"], answer:1, difficulty:2,
+    explanation:"Frugal means careful with money and resources — thrifty."},
+  {id:33, type:"synonym", word:"LAMENT", choices:["celebrate","mourn","whisper","defend","mock"], answer:1, difficulty:2,
+    explanation:"To lament means to mourn deeply or express sorrow about something."},
+  {id:34, type:"synonym", word:"CANDID", choices:["bright","honest","private","curious","angry"], answer:1, difficulty:2,
+    explanation:"Candid means truthful and straightforward — honest in expression."},
+  {id:35, type:"synonym", word:"TENACIOUS", choices:["fragile","timid","persistent","heavy","strict"], answer:2, difficulty:3,
+    explanation:"Tenacious means persistent and determined — holding firmly to something."},
+  {id:36, type:"synonym", word:"AFFLUENT", choices:["wealthy","generous","famous","powerful","educated"], answer:0, difficulty:2,
+    explanation:"Affluent means having a great deal of money — wealthy."},
+  {id:37, type:"synonym", word:"PRUDENT", choices:["careful","fast","proud","strict","honest"], answer:0, difficulty:2,
+    explanation:"Prudent means acting with care and thought about the future — wise and cautious."},
+  {id:38, type:"synonym", word:"ARDUOUS", choices:["beautiful","difficult","lonely","brave","loud"], answer:1, difficulty:3,
+    explanation:"Arduous means requiring great effort — very difficult and tiring."},
+  {id:39, type:"synonym", word:"SERENE", choices:["peaceful","silent","cold","empty","bright"], answer:0, difficulty:2,
+    explanation:"Serene means calm, peaceful, and untroubled."},
+  {id:40, type:"synonym", word:"ANTAGONIZE", choices:["support","provoke","ignore","question","follow"], answer:1, difficulty:3,
+    explanation:"To antagonize means to provoke hostility — to make someone hostile or angry."},
+  {id:41, type:"synonym", word:"BENEVOLENT", choices:["kind","strict","generous","brave","honest"], answer:0, difficulty:2,
+    explanation:"Benevolent means well-meaning and kind — showing goodwill toward others."},
+  {id:42, type:"synonym", word:"DILIGENT", choices:["lazy","hardworking","clever","proud","strict"], answer:1, difficulty:1,
+    explanation:"Diligent means showing steady and careful effort — hardworking."},
+  {id:43, type:"synonym", word:"METICULOUS", choices:["messy","careful","brilliant","strict","strange"], answer:1, difficulty:3,
+    explanation:"Meticulous means very careful and precise about details."},
+  {id:44, type:"synonym", word:"RESILIENT", choices:["flexible","recovering","strong","stubborn","active"], answer:1, difficulty:3,
+    explanation:"Resilient means able to recover quickly from difficulties — bouncing back."},
+  {id:45, type:"synonym", word:"AMBIGUOUS", choices:["unclear","wrong","hidden","vague","short"], answer:0, difficulty:3,
+    explanation:"Ambiguous means having more than one possible meaning — unclear or uncertain."},
+  {id:46, type:"synonym", word:"IMMENSE", choices:["heavy","distant","enormous","deep","ancient"], answer:2, difficulty:1,
+    explanation:"Immense means extremely large — enormous in size or degree."},
+  {id:47, type:"synonym", word:"PONDER", choices:["wonder","think","dream","decide","question"], answer:1, difficulty:2,
+    explanation:"To ponder means to think carefully and at length about something."},
+  {id:48, type:"synonym", word:"SCARCE", choices:["rare","thin","hard","dry","empty"], answer:0, difficulty:2,
+    explanation:"Scarce means in short supply — insufficient for the demand; rare."},
+  {id:49, type:"synonym", word:"BIZARRE", choices:["loud","strange","dark","wild","broken"], answer:1, difficulty:1,
+    explanation:"Bizarre means very strange or unusual — odd or peculiar."},
+  {id:50, type:"synonym", word:"ADEQUATE", choices:["perfect","enough","great","fair","full"], answer:1, difficulty:2,
+    explanation:"Adequate means satisfactory or acceptable — enough for the purpose."},
+
+  // ── ANALOGIES ──
+  {id:101, type:"analogy", stem:"Deer is to forest as", choices:["apple is to fruit","whale is to ocean","lion is to tiger","cage is to bird","gazelle is to Africa"], answer:1, difficulty:1,
+    relationship:"habitat", explanation:"A deer lives in a forest; a whale lives in an ocean. Animal → habitat."},
+  {id:102, type:"analogy", stem:"Pianist is to hands as", choices:["ballerina is to feet","scientist is to laboratory","hospital is to doctors","artist is to face","head is to body"], answer:0, difficulty:1,
+    relationship:"tool/part", explanation:"A pianist uses hands to perform; a ballerina uses feet to perform. Performer → body part used."},
+  {id:103, type:"analogy", stem:"Pound is to weight as", choices:["inch is to foot","tall is to height","mile is to distance","money is to rich","arithmetic is to school"], answer:2, difficulty:2,
+    relationship:"unit/measurement", explanation:"A pound is a unit of weight; a mile is a unit of distance."},
+  {id:104, type:"analogy", stem:"Pencil is to writing as", choices:["mop is to cleaning","sunlight is to raining","apron is to cooking","excitement is to driving","chocolate is to sweetness"], answer:0, difficulty:1,
+    relationship:"tool/purpose", explanation:"A pencil is used for writing; a mop is used for cleaning. Tool → its purpose."},
+  {id:105, type:"analogy", stem:"Faucet is to water as", choices:["fridge is to food","fan is to air","dust is to vacuum","broom is to bristles","outlet is to electricity"], answer:1, difficulty:2,
+    relationship:"source/output", explanation:"A faucet controls the flow of water; a fan controls the flow of air."},
+  {id:106, type:"analogy", stem:"Solitary is to hermit as", choices:["busy is to homework","greedy is to miser","policeman is to society","school is to learning","hungry is to stomach"], answer:1, difficulty:2,
+    relationship:"trait/person", explanation:"A hermit is known for being solitary; a miser is known for being greedy."},
+  {id:107, type:"analogy", stem:"Abdicate is to monarch as", choices:["resign is to governor","impeach is to president","abduct is to hostage","elude is to outlaw","abscond is to runaway"], answer:0, difficulty:3,
+    relationship:"action/person", explanation:"A monarch abdicates (gives up the throne voluntarily); a governor resigns (leaves office voluntarily)."},
+  {id:108, type:"analogy", stem:"Sculpture is to art as", choices:["diving is to ocean","subway is to passenger","tango is to dance","crayon is to coloring","letter is to envelope"], answer:2, difficulty:1,
+    relationship:"type/category", explanation:"Sculpture is a type of art; tango is a type of dance."},
+  {id:109, type:"analogy", stem:"Trustworthy is to friend as", choices:["greedy is to money","idiotic is to stupidity","intelligent is to studying","caring is to parent","reptilian is to horse"], answer:3, difficulty:2,
+    relationship:"trait/person", explanation:"A friend is typically trustworthy; a parent is typically caring."},
+  {id:110, type:"analogy", stem:"Novel is to poem as", choices:["letter is to alphabet","toy is to child","elephant is to dinosaur","marathon is to sprint","urban is to rural"], answer:3, difficulty:2,
+    relationship:"degree/length", explanation:"A novel is a long piece of writing; a poem is short. Similarly, a marathon is a long race; a sprint is short."},
+  {id:111, type:"analogy", stem:"Pious is to belief as", choices:["wise is to rashness","disagreeable is to personality","gold is to color","hardship is to persistence","athletic is to strength"], answer:4, difficulty:3,
+    relationship:"trait/domain", explanation:"Someone pious is devoted to belief/religion; someone athletic is devoted to physical strength."},
+  {id:112, type:"analogy", stem:"Mammal is to human as", choices:["apple is to fruit","avarice is to gluttony","philosopher is to knowledge","goat is to sheep","relationship is to friendship"], answer:0, difficulty:2,
+    relationship:"category/example", explanation:"A human is a specific type of mammal; an apple is a specific type of fruit. (Note: order — category→example, matching apple→fruit.)"},
+  {id:113, type:"analogy", stem:"Wisdom is to fools as", choices:["humor is to clowns","folly is to sages","jails are to criminals","knowledge is to teachers","joy is to sorrow"], answer:1, difficulty:3,
+    relationship:"antonym/person", explanation:"Fools lack wisdom; sages lack folly. Each word is what the person is missing or opposite of."},
+  {id:114, type:"analogy", stem:"Telephone is to communication as", choices:["travel is to vacation","garage is to car","stove is to cooking","multiplication is to division","tyrant is to assimilation"], answer:2, difficulty:1,
+    relationship:"tool/purpose", explanation:"A telephone is a tool for communication; a stove is a tool for cooking."},
+  {id:115, type:"analogy", stem:"Physics is to science as calculus is to", choices:["metaphysics","art","philosophy","mathematics","entertainment"], answer:3, difficulty:2,
+    relationship:"type/category", explanation:"Physics is a branch of science; calculus is a branch of mathematics."},
+  {id:116, type:"analogy", stem:"Jousting is to lance as", choices:["jumping is to trampoline","hunting is to sport","fencing is to sword","glamorizing is to celebrities","caroling is to song"], answer:2, difficulty:2,
+    relationship:"activity/instrument", explanation:"Jousting uses a lance; fencing uses a sword. Sport → weapon/tool used."},
+  {id:117, type:"analogy", stem:"Tallow is to fat as leather is to", choices:["wood","tanning","wallet","skin","cow"], answer:3, difficulty:3,
+    relationship:"product/source material", explanation:"Tallow is made from fat; leather is made from skin."},
+  {id:118, type:"analogy", stem:"Mitigate is to harm as", choices:["irrigate is to farm","instigate is to violence","substantiate is to claims","alleviate is to suffering","celebrate is to joy"], answer:3, difficulty:3,
+    relationship:"reduce/subject", explanation:"To mitigate means to reduce harm; to alleviate means to reduce suffering. Same relationship."},
+  {id:119, type:"analogy", stem:"Yawn is to sleepy as fidget is to", choices:["restless","depressed","angry","lonely","strong"], answer:0, difficulty:2,
+    relationship:"symptom/state", explanation:"A yawn is a sign of being sleepy; fidgeting is a sign of being restless."},
+  {id:120, type:"analogy", stem:"Website is to internet as", choices:["cookie is to browser","book is to library","newspaper is to video","information is to data","telephone is to radio"], answer:1, difficulty:2,
+    relationship:"item/location", explanation:"A website exists on the internet; a book exists in a library."},
+  {id:121, type:"analogy", stem:"Drought is to water as", choices:["unhappiness is to solitude","diligence is to work","enemy is to friend","failure is to shame","famine is to food"], answer:4, difficulty:2,
+    relationship:"scarcity/subject", explanation:"A drought is a scarcity of water; a famine is a scarcity of food."},
+  {id:122, type:"analogy", stem:"Persuasive is to argument as", choices:["tall is to stack","long is to conversation","compelling is to evidence","unsupported is to assertion","significant is to relevant"], answer:2, difficulty:3,
+    relationship:"quality/object", explanation:"A persuasive argument moves people; compelling evidence moves people. Same quality applied to related concepts."},
+  {id:123, type:"analogy", stem:"Remorseful is to unrepentant as", choices:["slender is to stout","wily is to sly","miserable is to somber","aggravated is to resentful","lithe is to flexible"], answer:0, difficulty:3,
+    relationship:"antonym pair", explanation:"Remorseful and unrepentant are opposites (feeling guilt vs. not). Slender and stout are opposites (thin vs. heavy)."},
+  {id:124, type:"analogy", stem:"High school is to college as", choices:["kindergarten is to pre-school","maturity is to youth","teenager is to school","apprenticeship is to job","urbanite is to city"], answer:3, difficulty:3,
+    relationship:"preparation/next step", explanation:"High school prepares you for college; an apprenticeship prepares you for a job. Preparation → next level."},
+  {id:125, type:"analogy", stem:"Dilate is to contract as", choices:["agreement is to pupa","expand is to narrow","collate is to pages","fixate is to notarize","grow is to oscillate"], answer:1, difficulty:3,
+    relationship:"antonym action", explanation:"Dilate means to expand/open; contract means to shrink/close. Expand and narrow are the same antonym pair."},
+  {id:126, type:"analogy", stem:"Collusion is to cooperation as", choices:["smuggling is to importing","character is to cast","surfing is to swimming","cooking is to ordering out","enmity is to friendship"], answer:0, difficulty:3,
+    relationship:"illegal vs. legal version", explanation:"Collusion is secret/illegal cooperation; smuggling is illegal importing. Both pairs contrast illegal and legal versions of similar activities."},
+  {id:127, type:"analogy", stem:"Plausible is to incredible as", choices:["possible is to unlikely","critical is to admonishing","ability is to power","pleasant is to amenable","potential is to factual"], answer:0, difficulty:3,
+    relationship:"antonym/degree", explanation:"Plausible means believable; incredible means unbelievable. Possible and unlikely follow the same contrast."},
+  {id:128, type:"analogy", stem:"Annoyed is to furious as", choices:["exasperated is to exuberant","thin is to gaunt","pessimistic is to unfriendly","disturbed is to imagined","talkative is to insolent"], answer:1, difficulty:2,
+    relationship:"degree/intensity", explanation:"Furious is an extreme version of annoyed. Gaunt is an extreme version of thin — same degree relationship."},
+  {id:129, type:"analogy", stem:"Navigate is to destination as", choices:["cheat is to success","strive is to goal","contrive is to improvise","concede is to failure","maneuver is to departure"], answer:1, difficulty:3,
+    relationship:"action/purpose", explanation:"You navigate in order to reach a destination; you strive in order to reach a goal."},
+  {id:130, type:"analogy", stem:"Arboretum is to garden as", choices:["park is to mountain","orchard is to farm","ranch is to wildlife","flowerbed is to daisies","gardener is to scientist"], answer:1, difficulty:3,
+    relationship:"large/small version", explanation:"An arboretum is a large, specialized type of garden; an orchard is a specialized type of farm (for fruit trees)."},
+  {id:131, type:"analogy", stem:"Canoe is to paddle as", choices:["bicycle is to pedal","sail is to wind","car is to road","horse is to saddle","swim is to water"], answer:0, difficulty:1,
+    relationship:"vehicle/propulsion", explanation:"A canoe is moved by a paddle; a bicycle is moved by pedaling."},
+  {id:132, type:"analogy", stem:"Ravenous is to hungry as", choices:["tired is to energetic","freezing is to chilly","happy is to joyful","cold is to icy","small is to large"], answer:1, difficulty:2,
+    relationship:"extreme/mild degree", explanation:"Ravenous is an extreme form of hungry; freezing is an extreme form of chilly."},
+  {id:133, type:"analogy", stem:"Architect is to building as", choices:["composer is to symphony","teacher is to student","lawyer is to court","doctor is to hospital","engineer is to science"], answer:0, difficulty:2,
+    relationship:"creator/creation", explanation:"An architect creates a building; a composer creates a symphony."},
+  {id:134, type:"analogy", stem:"Anthology is to poems as", choices:["chapter is to book","dictionary is to words","song is to music","planet is to solar system","forest is to trees"], answer:1, difficulty:3,
+    relationship:"collection/items", explanation:"An anthology is a collection of poems; a dictionary is a collection of words."},
+  {id:135, type:"analogy", stem:"Prologue is to book as", choices:["overture is to opera","curtain is to stage","actor is to play","chorus is to song","frame is to picture"], answer:0, difficulty:3,
+    relationship:"introduction/work", explanation:"A prologue introduces a book; an overture introduces an opera."},
+  {id:136, type:"analogy", stem:"Surgeon is to scalpel as", choices:["painter is to brush","chef is to kitchen","writer is to pen","carpenter is to wood","teacher is to classroom"], answer:0, difficulty:1,
+    relationship:"professional/tool", explanation:"A surgeon uses a scalpel; a painter uses a brush. Professional → their primary tool."},
+  {id:137, type:"analogy", stem:"Whisper is to shout as", choices:["trickle is to flood","sad is to unhappy","walk is to run","smile is to laugh","breeze is to wind"], answer:0, difficulty:2,
+    relationship:"quiet/loud degree", explanation:"A shout is an extreme whisper (volume); a flood is an extreme trickle (water flow)."},
+  {id:138, type:"analogy", stem:"Herbivore is to plants as", choices:["carnivore is to meat","omnivore is to food","vegetarian is to tofu","fish is to water","cow is to milk"], answer:0, difficulty:2,
+    relationship:"diet type/food", explanation:"A herbivore eats plants; a carnivore eats meat. Same relationship structure."},
+  {id:139, type:"analogy", stem:"Transparent is to glass as", choices:["opaque is to wood","clear is to water","bright is to sun","smooth is to silk","white is to snow"], answer:0, difficulty:3,
+    relationship:"quality/example", explanation:"Glass is an example of a transparent material; wood is an example of an opaque material."},
+  {id:140, type:"analogy", stem:"Rehearsal is to performance as", choices:["practice is to game","school is to graduation","draft is to essay","study is to test","warm-up is to exercise"], answer:2, difficulty:3,
+    relationship:"preparation/final product", explanation:"A rehearsal is a trial run for a performance; a draft is a trial run for an essay."},
+];
+
+// Vocabulary reference bank
+const VOCAB_BANK = [
+  {word:"GENERATE", pos:"verb", def:"To produce or create something", syns:["produce","create","yield","form"]},
+  {word:"COSMIC", pos:"adjective", def:"Relating to the universe or outer space; immensely vast", syns:["celestial","universal","astronomical","infinite"]},
+  {word:"NULLIFY", pos:"verb", def:"To make legally void; to cancel the effect of something", syns:["cancel","void","annul","invalidate"]},
+  {word:"COMPEL", pos:"verb", def:"To force someone to do something", syns:["force","coerce","oblige","impel"]},
+  {word:"APEX", pos:"noun", def:"The top or highest point of something", syns:["peak","summit","pinnacle","zenith"]},
+  {word:"SUPREME", pos:"adjective", def:"Highest in rank, authority, or quality", syns:["ultimate","paramount","highest","greatest"]},
+  {word:"HOOKED", pos:"adjective", def:"Completely absorbed or addicted", syns:["captivated","addicted","obsessed","enthralled"]},
+  {word:"FROCK", pos:"noun", def:"A woman's or girl's dress", syns:["dress","gown","garment","robe"]},
+  {word:"SPLENDID", pos:"adjective", def:"Magnificent, grand, or impressive", syns:["magnificent","glorious","superb","dazzling"]},
+  {word:"NUCLEUS", pos:"noun", def:"The central and most important part", syns:["core","center","heart","hub"]},
+  {word:"BARBED", pos:"adjective", def:"Having sharp projecting points; cutting in tone", syns:["spiked","pointed","sharp","stinging"]},
+  {word:"BREACH", pos:"noun/verb", def:"A gap or break; a violation of a rule", syns:["break","gap","rupture","violation"]},
+  {word:"SCOUR", pos:"verb", def:"To search thoroughly; to clean by scrubbing", syns:["scrutinize","search","examine","scrub"]},
+  {word:"CORRELATION", pos:"noun", def:"A relationship or connection between two things", syns:["association","connection","link","relationship"]},
+  {word:"SUBSIDY", pos:"noun", def:"Money given by a government to support an activity", syns:["financial aid","grant","support","allowance"]},
+  {word:"CASTIGATE", pos:"verb", def:"To reprimand or criticize severely", syns:["berate","scold","rebuke","censure"]},
+  {word:"GLOSS", pos:"noun", def:"A shiny surface quality; superficial attractiveness", syns:["luster","sheen","shine","veneer"]},
+  {word:"SHIRK", pos:"verb", def:"To avoid a duty or responsibility", syns:["avoid","evade","dodge","neglect"]},
+  {word:"ATONE", pos:"verb", def:"To make amends for a wrongdoing", syns:["make amends","repent","compensate","expiate"]},
+  {word:"BEDEVIL", pos:"verb", def:"To cause continuous trouble; to torment", syns:["torment","plague","harass","afflict"]},
+  {word:"EVOKE", pos:"verb", def:"To bring forth a feeling, memory, or response", syns:["elicit","summon","arouse","invoke"]},
+  {word:"CONSTRUE", pos:"verb", def:"To interpret or understand in a particular way", syns:["interpret","understand","read","decipher"]},
+  {word:"PALATABLE", pos:"adjective", def:"Acceptable or agreeable; pleasant enough to accept", syns:["acceptable","agreeable","tolerable","satisfactory"]},
+  {word:"FERVENT", pos:"adjective", def:"Having or showing intense feeling", syns:["passionate","ardent","zealous","enthusiastic"]},
+  {word:"TENACIOUS", pos:"adjective", def:"Persistent and determined; holding firmly", syns:["persistent","determined","resolute","stubborn"]},
+  {word:"AFFLUENT", pos:"adjective", def:"Having a great deal of money; wealthy", syns:["wealthy","prosperous","rich","well-off"]},
+  {word:"PRUDENT", pos:"adjective", def:"Acting with care and thought about the future", syns:["careful","cautious","wise","sensible"]},
+  {word:"ARDUOUS", pos:"adjective", def:"Requiring great effort; very difficult and tiring", syns:["difficult","strenuous","laborious","demanding"]},
+  {word:"ANTAGONIZE", pos:"verb", def:"To provoke hostility; to make someone hostile", syns:["provoke","irritate","aggravate","alienate"]},
+  {word:"BENEVOLENT", pos:"adjective", def:"Well-meaning and kind; showing goodwill", syns:["kind","generous","charitable","compassionate"]},
+  {word:"DILIGENT", pos:"adjective", def:"Showing steady and careful effort", syns:["hardworking","industrious","thorough","persistent"]},
+  {word:"METICULOUS", pos:"adjective", def:"Very careful and precise about details", syns:["careful","precise","thorough","scrupulous"]},
+  {word:"RESILIENT", pos:"adjective", def:"Able to recover quickly from difficulties", syns:["recovering","adaptable","strong","flexible"]},
+  {word:"AMBIGUOUS", pos:"adjective", def:"Having more than one possible meaning", syns:["unclear","vague","uncertain","equivocal"]},
+  {word:"MITIGATE", pos:"verb", def:"To reduce the severity or seriousness of something", syns:["alleviate","reduce","lessen","ease"]},
+  {word:"PLAUSIBLE", pos:"adjective", def:"Seeming reasonable or probable; believable", syns:["believable","credible","reasonable","likely"]},
+  {word:"COLLUSION", pos:"noun", def:"Secret cooperation for a deceptive or illegal purpose", syns:["conspiracy","scheming","plotting","complicity"]},
+  {word:"ABDICATE", pos:"verb", def:"To give up a high position or responsibility", syns:["resign","relinquish","renounce","surrender"]},
+  {word:"PIOUS", pos:"adjective", def:"Devoutly religious; deeply devoted to belief", syns:["devout","religious","faithful","reverent"]},
+  {word:"CANDID", pos:"adjective", def:"Truthful and straightforward in expression", syns:["honest","frank","open","direct"]},
+];
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let state = {
+  sessions: [],
+  weakWords: {},
+  streakDates: [],
+};
+let quiz = {
+  questions: [],
+  current: 0,
+  answers: [],
+  startTime: null,
+  settings: { type: 'both', count: 20, diff: 'mixed' }
+};
+
+// Load saved state
+function loadState() {
+  try {
+    const saved = localStorage.getItem('ssatQuizState');
+    if (saved) state = JSON.parse(saved);
+  } catch(e) {}
+}
+function saveState() {
+  try {
+    localStorage.setItem('ssatQuizState', JSON.stringify(state));
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navMap = {home:'nav-home',history:'nav-history',vocab:'nav-vocab'};
+  if (navMap[id]) document.getElementById(navMap[id]).classList.add('active');
+  document.body.classList.toggle('in-quiz', id === 'quiz');
+  if (id === 'history') renderHistory();
+  if (id === 'vocab') renderVocab();
+  if (id === 'home') updateHomeStats();
+  window.scrollTo(0,0);
+}
+
+function showSetup() { showScreen('setup'); }
+
+// ══════════════════════════════════════════
+// CHIP SELECTION
+// ══════════════════════════════════════════
+function selectChip(el, group) {
+  document.querySelectorAll(`.chip[data-group="${group}"]`).forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function getChipVal(group) {
+  const sel = document.querySelector(`.chip.selected[data-group="${group}"]`);
+  return sel ? sel.dataset.val : null;
+}
+
+// ══════════════════════════════════════════
+// QUIZ LOGIC
+// ══════════════════════════════════════════
+function startQuiz() {
+  quiz.settings = {
+    type: getChipVal('type') || 'both',
+    count: parseInt(getChipVal('count')) || 20,
+    diff: getChipVal('diff') || 'mixed'
+  };
+  let pool = [...QUESTIONS];
+  if (quiz.settings.type === 'synonyms') pool = pool.filter(q => q.type === 'synonym');
+  if (quiz.settings.type === 'analogies') pool = pool.filter(q => q.type === 'analogy');
+  if (quiz.settings.diff === 'easy') pool.sort((a,b) => a.difficulty - b.difficulty);
+  else if (quiz.settings.diff === 'hard') pool.sort((a,b) => b.difficulty - a.difficulty);
+  else if (quiz.settings.diff === 'weak') {
+    pool.sort((a,b) => {
+      const wa = state.weakWords[a.id] || 0;
+      const wb = state.weakWords[b.id] || 0;
+      return wb - wa;
+    });
+  } else {
+    pool = pool.sort(() => Math.random() - 0.5);
+  }
+  quiz.questions = pool.slice(0, quiz.settings.count);
+  quiz.current = 0;
+  quiz.answers = new Array(quiz.questions.length).fill(null);
+  quiz.startTime = Date.now();
+  renderQuestion();
+  showScreen('quiz');
+}
+
+function renderQuestion() {
+  const q = quiz.questions[quiz.current];
+  const total = quiz.questions.length;
+  const idx = quiz.current;
+  document.getElementById('qCounter').textContent = `${idx+1} / ${total}`;
+  document.getElementById('qProgress').style.width = `${((idx+1)/total)*100}%`;
+  const badge = document.getElementById('qTypeBadge');
+  badge.textContent = q.type === 'synonym' ? '📚 Synonym' : '🔗 Analogy';
+  badge.className = `quiz-type-badge ${q.type}`;
+  document.getElementById('qNum').textContent = `Question ${idx+1}`;
+  document.getElementById('qText').textContent = q.type === 'synonym' ? q.word : q.stem;
+  document.getElementById('qInstruction').textContent = q.type === 'synonym'
+    ? 'Choose the word closest in meaning'
+    : 'Select the answer that best completes the analogy';
+  const container = document.getElementById('choicesContainer');
+  const letters = ['A','B','C','D','E'];
+  container.innerHTML = q.choices.map((c,i) =>
+    `<button class="choice-btn" onclick="selectAnswer(${i})" id="choice-${i}">
+      <span class="choice-letter">${letters[i]}</span>
+      <span>${c}</span>
+    </button>`
+  ).join('');
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.disabled = quiz.answers[idx] === null;
+  nextBtn.textContent = idx === total-1 ? 'Finish Quiz ✦' : 'Next Question →';
+  if (quiz.answers[idx] !== null) {
+    const saved = quiz.answers[idx];
+    if (saved !== -1) highlightChoices(saved, q.answer, false);
+  }
+}
+
+function selectAnswer(choiceIdx) {
+  const q = quiz.questions[quiz.current];
+  if (quiz.answers[quiz.current] !== null) return;
+  quiz.answers[quiz.current] = choiceIdx;
+  highlightChoices(choiceIdx, q.answer, true);
+  document.getElementById('nextBtn').disabled = false;
+  if (choiceIdx !== q.answer) {
+    state.weakWords[q.id] = (state.weakWords[q.id] || 0) + 1;
+  } else if (state.weakWords[q.id]) {
+    state.weakWords[q.id] = Math.max(0, state.weakWords[q.id] - 0.5);
+  }
+  saveState();
+}
+
+function highlightChoices(selected, correct, animate) {
+  document.querySelectorAll('.choice-btn').forEach((btn,i) => {
+    if (animate) {
+      if (i === correct) { btn.classList.add('correct'); }
+      if (i === selected && selected !== correct) { btn.classList.add('wrong'); }
+    } else {
+      btn.classList.add('selected');
+    }
+    btn.style.pointerEvents = 'none';
+  });
+}
+
+function skipQuestion() {
+  quiz.answers[quiz.current] = -1;
+  document.getElementById('nextBtn').disabled = false;
+  nextQuestion();
+}
+
+function nextQuestion() {
+  if (quiz.current < quiz.questions.length - 1) {
+    quiz.current++;
+    renderQuestion();
+    window.scrollTo(0,0);
+  } else {
+    finishQuiz();
+  }
+}
+
+function finishQuiz() {
+  const elapsed = Math.round((Date.now() - quiz.startTime) / 1000);
+  const correct = quiz.answers.filter((a,i) => a === quiz.questions[i].answer).length;
+  const skipped = quiz.answers.filter(a => a === -1).length;
+  const wrong = quiz.questions.length - correct - skipped;
+  const score = Math.round((correct / quiz.questions.length) * 100);
+  const session = {
+    date: new Date().toISOString(),
+    score, correct, wrong, skipped,
+    total: quiz.questions.length,
+    elapsed,
+    answers: quiz.answers.map((a,i) => ({
+      qId: quiz.questions[i].id,
+      type: quiz.questions[i].type,
+      selected: a,
+      correct: quiz.questions[i].answer,
+      isCorrect: a === quiz.questions[i].answer,
+    }))
+  };
+  state.sessions.unshift(session);
+  const today = new Date().toDateString();
+  if (!state.streakDates.includes(today)) state.streakDates.push(today);
+  saveState();
+  renderResults(session, elapsed, score, correct, wrong, skipped);
+  showScreen('results');
+}
+
+// ══════════════════════════════════════════
+// RESULTS
+// ══════════════════════════════════════════
+function renderResults(session, elapsed, score, correct, wrong, skipped) {
+  const emoji = score >= 80 ? '🌟' : score >= 60 ? '👏' : score >= 40 ? '💪' : '📖';
+  const title = score >= 80 ? 'Excellent Work!' : score >= 60 ? 'Great Practice!' : score >= 40 ? 'Keep Going!' : 'Every Session Counts!';
+  document.getElementById('resultsEmoji').textContent = emoji;
+  document.getElementById('resultsTitle').textContent = title;
+  document.getElementById('resultsSub').textContent = `${quiz.settings.count} questions · ${formatTime(elapsed)}`;
+  document.getElementById('scoreVal').textContent = score + '%';
+  document.getElementById('rCorrect').textContent = correct;
+  document.getElementById('rWrong').textContent = wrong;
+  document.getElementById('rSkipped').textContent = skipped;
+  document.getElementById('rTime').textContent = formatTime(elapsed);
+
+  // Animate score arc
+  const arc = document.getElementById('scoreArc');
+  const circumference = 301.6;
+  setTimeout(() => {
+    arc.style.transition = 'stroke-dashoffset 1s ease';
+    arc.style.strokeDashoffset = circumference - (score/100)*circumference;
+  }, 300);
+
+  // Insights
+  renderInsights(session, score, correct);
+
+  // Review
+  const container = document.getElementById('reviewContainer');
+  container.innerHTML = quiz.questions.map((q, i) => {
+    const userAns = quiz.answers[i];
+    const isCorrect = userAns === q.answer;
+    const isSkipped = userAns === -1;
+    const letters = ['A','B','C','D','E'];
+    return `<div class="review-card">
+      <div class="rc-top">
+        <div class="rc-q">${q.type === 'synonym' ? q.word : q.stem}</div>
+        <div class="rc-status">${isSkipped ? '◇' : isCorrect ? '✅' : '❌'}</div>
+      </div>
+      ${!isSkipped ? `
+      <div class="answer-row">
+        <span class="answer-label">Your answer</span>
+        <span class="answer-text ${isCorrect?'correct-ans':'wrong-ans'}">${userAns >= 0 ? letters[userAns]+') '+q.choices[userAns] : '—'}</span>
+      </div>` : ''}
+      ${!isCorrect ? `
+      <div class="answer-row">
+        <span class="answer-label">Correct</span>
+        <span class="answer-text correct-ans">${letters[q.answer]}) ${q.choices[q.answer]}</span>
+      </div>` : ''}
+      <div class="explanation">${q.explanation || (q.relationship ? '🔗 Relationship type: ' + q.relationship : '')}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderInsights(session, score, correct) {
+  const container = document.getElementById('insightsSection');
+  const sessions = state.sessions;
+  const synQs = quiz.questions.filter(q => q.type === 'synonym');
+  const anaQs = quiz.questions.filter(q => q.type === 'analogy');
+  let synCorrect = 0, anaCorrect = 0;
+  quiz.questions.forEach((q,i) => {
+    if (quiz.answers[i] === q.answer) {
+      if (q.type === 'synonym') synCorrect++;
+      else anaCorrect++;
+    }
+  });
+  const synPct = synQs.length > 0 ? Math.round((synCorrect/synQs.length)*100) : null;
+  const anaPct = anaQs.length > 0 ? Math.round((anaCorrect/anaQs.length)*100) : null;
+
+  // Weak areas
+  const weakIds = Object.entries(state.weakWords)
+    .sort((a,b) => b[1]-a[1]).slice(0,5)
+    .map(([id]) => QUESTIONS.find(q => q.id == id))
+    .filter(Boolean);
+
+  // Trend
+  const last5 = sessions.slice(0,5).reverse();
+  const improving = last5.length >= 2 && last5[last5.length-1].score > last5[0].score;
+
+  // Strategy tip based on weaknesses
+  const weakType = (synPct !== null && anaPct !== null)
+    ? (synPct < anaPct ? 'synonyms' : 'analogies')
+    : (synPct !== null ? 'synonyms' : 'analogies');
+  const tips = {
+    synonyms: { title: "Vocabulary Tip 📚", text: "For synonym questions: try to use the word in a sentence first. If you know the word has a positive or negative feeling, that alone can eliminate 2-3 choices!" },
+    analogies: { title: "Analogy Strategy 🔗", text: "For analogies: build a 'relationship sentence' — e.g. 'A faucet controls the flow of WATER, so a fan controls the flow of ___'. Be as specific as possible." }
+  };
+  const tip = tips[weakType];
+
+  let html = `
+    <div class="section-title" style="margin-bottom:16px">📊 Today's Insights</div>
+    <div class="strategy-tip">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><div class="tip-title">${tip.title}</div>${tip.text}</div>
+    </div>`;
+
+  if (synPct !== null || anaPct !== null) {
+    html += `<div class="insights-card">
+      <h4>📈 Performance by Type</h4>`;
+    if (synPct !== null) html += `
+      <div class="trend-bar">
+        <span class="trend-label">Synonyms</span>
+        <div class="trend-track"><div class="trend-fill s" style="width:${synPct}%"></div></div>
+        <span class="trend-pct">${synPct}%</span>
+      </div>`;
+    if (anaPct !== null) html += `
+      <div class="trend-bar">
+        <span class="trend-label">Analogies</span>
+        <div class="trend-track"><div class="trend-fill a" style="width:${anaPct}%"></div></div>
+        <span class="trend-pct">${anaPct}%</span>
+      </div>`;
+    html += `</div>`;
+  }
+
+  if (weakIds.length > 0) {
+    html += `<div class="insights-card">
+      <h4>⚠️ Keep Practicing These</h4>
+      <p>These words or question types have tripped you up most often:</p>
+      <div class="tag-list">${weakIds.map(q =>
+        `<span class="tag weak">${q.type === 'synonym' ? q.word : q.stem.split(' ').slice(0,3).join(' ')+'…'}</span>`
+      ).join('')}</div>
+    </div>`;
+  }
+
+  if (sessions.length >= 2) {
+    const prevScore = sessions[1]?.score;
+    const diff = score - prevScore;
+    html += `<div class="insights-card">
+      <h4>${improving ? '🚀 You\'re Improving!' : '📖 Keep Practicing'}</h4>
+      <p>${improving
+        ? `Your score went from ${sessions[sessions.length > 4 ? 4 : sessions.length-1]?.score}% to ${score}% over your recent sessions. Keep up this momentum!`
+        : `Your last session was ${prevScore}%, today is ${score}%. ${diff >= 0 ? 'You\'re holding steady!' : 'Don\'t worry — each practice session builds long-term memory.'}`}
+      </p>
+    </div>`;
+  }
+
+  const strategies = [
+    { label: "Relationship sentences", desc: "For analogies, create a sentence that captures the exact relationship." },
+    { label: "Positive/negative sorting", desc: "Label words as + or − to eliminate wrong synonyms." },
+    { label: "Root word clues", desc: "Look for Latin/Greek roots (sub=under, mal=bad, bene=good)." },
+    { label: "Eliminate extremes", desc: "On synonyms, choices that are too extreme or too mild are usually wrong." },
+  ];
+  html += `<div class="insights-card">
+    <h4>🎯 Strategies You're Building</h4>
+    <div class="tag-list">${strategies.map(s => `<span class="tag strength" title="${s.desc}">${s.label}</span>`).join('')}</div>
+    <p style="margin-top:10px;font-size:13px">Tap each strategy tag to remember the technique. Building all 4 strategies is the key to top SSAT verbal scores.</p>
+  </div>`;
+
+  container.innerHTML = html;
+}
+
+// ══════════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════════
+function renderHistory() {
+  const container = document.getElementById('historyContent');
+  const sessions = state.sessions;
+  if (!sessions.length) {
+    container.innerHTML = `<div class="history-empty">No sessions yet.<br>Complete your first quiz to see your progress here! 📖</div>`;
+    return;
+  }
+  const avg = Math.round(sessions.reduce((s,x) => s+x.score,0)/sessions.length);
+  const best = Math.max(...sessions.map(s=>s.score));
+  const streak = calcStreak();
+  let html = `<div class="overall-progress">
+    <h3>Overall Progress</h3>
+    <div class="overall-row">
+      <div><div class="overall-val">${avg}%</div><div class="overall-label">Avg Score</div></div>
+      <div><div class="overall-val">${best}%</div><div class="overall-label">Best Score</div></div>
+      <div><div class="overall-val">${streak}</div><div class="overall-label">Day Streak 🔥</div></div>
+      <div><div class="overall-val">${sessions.length}</div><div class="overall-label">Sessions</div></div>
+    </div>
+  </div>`;
+
+  // Trend chart
+  if (sessions.length >= 2) {
+    const last8 = sessions.slice(0, Math.min(8,sessions.length)).reverse();
+    const max = 100, min = 0, w = 320, h = 80;
+    const pts = last8.map((s,i) => {
+      const x = 20 + i * ((w-40)/(last8.length-1));
+      const y = h - ((s.score-min)/(max-min))*(h-20) - 10;
+      return `${x},${y}`;
+    }).join(' ');
+    html += `<div class="insights-card" style="margin-bottom:20px">
+      <h4>📈 Score Trend</h4>
+      <svg viewBox="0 0 ${w} ${h}" style="width:100%;margin-top:8px">
+        <polyline points="${pts}" fill="none" stroke="#2b6cb0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        ${last8.map((s,i) => {
+          const x = 20 + i * ((w-40)/(last8.length-1));
+          const y = h - ((s.score-min)/(max-min))*(h-20) - 10;
+          return `<circle cx="${x}" cy="${y}" r="4" fill="#d4601a"/>
+          <text x="${x}" y="${y-8}" text-anchor="middle" font-size="10" fill="#7a6a55">${s.score}%</text>`;
+        }).join('')}
+      </svg>
+    </div>`;
+  }
+
+  html += `<div class="section-title" style="margin-bottom:12px">Session History</div>`;
+  html += sessions.map((s, i) => {
+    const d = new Date(s.date);
+    const scoreColor = s.score >= 80 ? '#276749' : s.score >= 60 ? '#c6952a' : '#b91c1c';
+    return `<div class="session-card">
+      <div class="session-icon">${s.score}%</div>
+      <div class="session-info">
+        <div class="session-date">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div>
+        <div class="session-score" style="color:${scoreColor}">${s.correct} / ${s.total} correct</div>
+        <div class="session-detail">⏱ ${formatTime(s.elapsed)} · ${s.skipped} skipped · ${s.wrong} wrong</div>
+      </div>
+    </div>`;
+  }).join('');
+  container.innerHTML = html;
+}
+
+// ══════════════════════════════════════════
+// VOCAB
+// ══════════════════════════════════════════
+function renderVocab(filter='') {
+  const list = document.getElementById('vocabList');
+  const words = filter
+    ? VOCAB_BANK.filter(v => v.word.toLowerCase().includes(filter.toLowerCase()) || v.def.toLowerCase().includes(filter.toLowerCase()))
+    : VOCAB_BANK;
+  list.innerHTML = words.map(v => `
+    <div class="vocab-item">
+      <div class="vocab-word">${v.word}</div>
+      <div class="vocab-pos">${v.pos}</div>
+      <div class="vocab-def">${v.def}</div>
+      <div class="vocab-syn">${v.syns.map(s => `<span>${s}</span>`).join('')}</div>
+    </div>
+  `).join('');
+}
+function filterVocab(val) { renderVocab(val); }
+
+// ══════════════════════════════════════════
+// HOME STATS
+// ══════════════════════════════════════════
+function updateHomeStats() {
+  const sessions = state.sessions;
+  const streak = calcStreak();
+  document.getElementById('statStreak').textContent = streak;
+  document.getElementById('statSessions').textContent = sessions.length;
+  const avg = sessions.length ? Math.round(sessions.reduce((s,x)=>s+x.score,0)/sessions.length)+'%' : '—';
+  document.getElementById('statAvgScore').textContent = avg;
+  document.getElementById('statTotal').textContent = sessions.reduce((s,x)=>s+x.total,0);
+}
+
+function calcStreak() {
+  if (!state.streakDates || !state.streakDates.length) return 0;
+  const dates = state.streakDates.map(d => new Date(d).toDateString());
+  let streak = 0;
+  let check = new Date();
+  while (dates.includes(check.toDateString())) {
+    streak++;
+    check.setDate(check.getDate()-1);
+  }
+  return streak;
+}
+
+function startNewQuiz() { showSetup(); }
+function formatTime(s) { return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+loadState();
+updateHomeStats();
+renderVocab();
+</script>
+</body>
+</html>
