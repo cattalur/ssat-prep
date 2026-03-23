@@ -59,6 +59,8 @@ h2{font-size:18px;font-weight:800;color:#0f2545}
 .tab.active{border-color:#3b82f6;background:#eff6ff;color:#1d4ed8}
 .type-chip{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:800;background:#ede9fe;color:#6d28d9;margin-bottom:10px}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head>
 <body>
 <div class="app" id="app"></div>
@@ -97,13 +99,44 @@ function parseAnalogies(text){
 // ── PASSAGES ──────────────────────────────────────────────────
 const PASSAGES=[{id:1,title:"The Stubborn Seed",text:"In the middle of a concrete sidewalk, where no reasonable plant would dare to grow, a tiny oak sapling pushed its way toward the sun. Pedestrians stepped around it, mystified. City workers debated removing it. Yet week after week, it remained.\n\nDr. Nina Patel, a botanist who had studied urban plant resilience for twenty years, noticed the sapling on her morning walk. She crouched down and examined it carefully. The crack in the sidewalk was no wider than her thumb, yet somehow the young oak had found enough soil, enough moisture, enough light to survive.\n\n\"Tenacity,\" she murmured, almost to herself. She had observed this quality in plants across three continents — a mangrove that colonized a saltwater shoreline, a wildflower that bloomed on the rim of a volcano. Life, she had concluded, was far more resilient than people imagined.\n\nThe city eventually decided to replace the cracked sidewalk. But at Dr. Patel's insistence, workers carefully transplanted the small oak to a nearby park, where it stands today — a symbol, she says, of stubborn, quiet persistence.",qs:[{q:"As used in the passage, 'tenacity' most nearly means:",ch:["flexibility","stubbornness and persistence","great intelligence","physical strength"],ans:1},{q:"Why did Dr. Patel most likely say 'Tenacity' to herself?",ch:["She was unhappy with the city's plans","She admired the plant's determination to survive","She was identifying the plant's species","She was rehearsing a speech"],ans:1},{q:"The main purpose of this passage is to:",ch:["explain how to transplant trees","describe a scientist's daily routine","illustrate the remarkable persistence of living things","argue that cities should protect sidewalk plants"],ans:2},{q:"Which word best describes Dr. Patel's attitude toward the sapling?",ch:["Indifferent","Amused","Admiring","Concerned"],ans:2}]},{id:2,title:"The Price of Words",text:"In ancient times, before the printing press made books affordable, knowledge was extraordinarily rare and precious. Manuscripts were copied by hand — a task that might take a single monk an entire year for one volume. Libraries were not open to the public; they were guarded rooms in castles and monasteries.\n\nTo own even one book was a sign of great wealth. A single Bible could cost as much as a house. Scholars who wanted to learn often had to travel vast distances, sometimes across continents, just to read a specific text for a few hours.\n\nWhen Johannes Gutenberg invented the movable-type printing press around 1440, he changed civilization. Within fifty years, millions of books existed where once there had been thousands. Ideas that had lived in only a handful of manuscripts could suddenly cross borders and oceans.\n\nSome feared this spread of knowledge. Religious leaders worried that people would read the Bible themselves and form their own interpretations. Rulers worried that political ideas would spread beyond their control. In many cases, these fears proved correct — the printing press played a central role in the Protestant Reformation and helped ignite the Scientific Revolution.\n\nThe written word, it turned out, was more powerful than any sword.",qs:[{q:"The word 'spread' in paragraph 4 most nearly means in context:",ch:["confusion","the sharing of something widely","government control","a printing technique"],ans:1},{q:"Which best states the main idea of this passage?",ch:["Gutenberg was the most important inventor ever","Books were once only for monks and priests","The printing press transformed the spread of knowledge and power","Religious leaders opposed all forms of learning"],ans:2},{q:"According to the passage, what was one reason rulers feared the printing press?",ch:["It was too expensive for common people","Political ideas could spread beyond their control","Books could be used to criticize Gutenberg","Paper was dangerously flammable"],ans:1},{q:"The statement 'The written word was more powerful than any sword' suggests:",ch:["Writers were physically stronger than soldiers","Ideas can change the world more than violence can","Swords were useless in ancient times","Gutenberg was a military leader"],ans:1}]},{id:3,title:"Echo",text:"Maya had always been quiet. Not shy, exactly — she simply preferred to listen. In class, while others competed to speak first, Maya sat back and absorbed everything: the way her teacher's voice slowed near important facts, the moment a classmate's question revealed a misunderstanding, the pause before someone said something they actually meant.\n\nHer mother called it her \"superpower.\" Her teachers wrote words like \"reserved\" and \"thoughtful\" on her report cards. A few classmates mistook her silence for indifference — or worse, for a lack of intelligence.\n\nWhat none of them understood was that Maya was composing. In her mind, she was arranging words, testing them, discarding the ones that weren't quite right. By the time she spoke — which she did, eventually, when she had something worth saying — her sentences were careful and exact.\n\nOn the day of the school debate competition, Maya's opponent was Jordan, who was quick and clever and filled every available silence with confident words. Maya let him speak. She listened. She waited.\n\nThen, in one quiet and precise response, she took apart every single one of his arguments.\n\nThe room went still. Even Jordan was silent. Maya nodded once and sat back down.",qs:[{q:"As used in paragraph 3, 'composing' most nearly means:",ch:["calming herself down","carefully preparing and organizing her thoughts","writing music","responding to emails"],ans:1},{q:"The author suggests that Maya's quietness is primarily:",ch:["a sign that she is unhappy","a misunderstood strength","a strategy she learned from her mother","a problem she is trying to fix"],ans:1},{q:"What does 'Maya let him speak' suggest about her approach?",ch:["She was too nervous to respond","She didn't care about winning","She used listening as a strategic advantage","She had forgotten her arguments"],ans:2},{q:"Which word best describes the tone of the final two paragraphs?",ch:["Melancholy","Triumphant","Frantic","Humorous"],ans:1}]}];
 
+// ── FIREBASE SETUP ──────────────────────────────────────────
+firebase.initializeApp({
+  apiKey: "AIzaSyAQc8wIIiL0nwUrAqRs4_6isst9K-g-Pm0",
+  authDomain: "ssat-prep-k.firebaseapp.com",
+  databaseURL: "https://ssat-prep-k-default-rtdb.firebaseio.com",
+  projectId: "ssat-prep-k",
+  storageBucket: "ssat-prep-k.firebasestorage.app",
+  messagingSenderId: "431527692256",
+  appId: "1:431527692256:web:5905673a7a425636c14d85"
+});
+const fbDb = firebase.database();
+const FC_KEY = "ssat_family_code";
+let familyCode = localStorage.getItem(FC_KEY);
+if (!familyCode) {
+  familyCode = prompt("Enter a family code (e.g. your last name) to sync across devices:");
+  if (familyCode) {
+    familyCode = familyCode.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    localStorage.setItem(FC_KEY, familyCode);
+  }
+}
+const fbRefP = familyCode ? fbDb.ref('families/' + familyCode + '/progress') : null;
+const fbRefC = familyCode ? fbDb.ref('families/' + familyCode + '/customWords') : null;
+
 // ── STORAGE ───────────────────────────────────────────────────
 const SK="ssat_prep_v4";
 const mkP=()=>({vh:{},ah:{},rh:{},streak:0,lastDate:null,xp:0,learned:{vocabIds:[],rootIds:[]}});
 const loadP=()=>{try{return{...mkP(),...JSON.parse(localStorage.getItem(SK)||"{}")}}catch{return mkP()}};
 const loadC=()=>{try{return JSON.parse(localStorage.getItem(SK+"_c")||"[]")}catch{return[]}};
-const saveP=p=>localStorage.setItem(SK,JSON.stringify(p));
-const saveC=w=>localStorage.setItem(SK+"_c",JSON.stringify(w));
+const saveP=p=>{
+  localStorage.setItem(SK,JSON.stringify(p));
+  if(fbRefP) fbRefP.set({...p,_ts:Date.now()});
+};
+const saveC=w=>{
+  const ts=Date.now();
+  localStorage.setItem(SK+"_c",JSON.stringify(w));
+  localStorage.setItem(SK+"_c_ts",String(ts));
+  if(fbRefC) fbRefC.set({data:w,_ts:ts});
+};
 let progress=loadP(), customWords=loadC();
 const allVocab=()=>[...BUILTIN_VOCAB,...customWords];
 const getDailyWords=()=>allVocab().map(w=>{const h=progress.vh[w.id]||{c:0,i:0,t:0};return{...w,score:h.i/Math.max(1,h.c+h.i)*10+(Date.now()-(h.t||0))/1e7}}).sort((a,b)=>b.score-a.score).slice(0,5);
@@ -739,7 +772,39 @@ Promise.all([
   ANALOGIES=parseAnalogies(at);
   BUILTIN_VOCAB=parseVocab(vt);
   aQueue=[...ANALOGIES].sort(()=>Math.random()-.5);
-  render();
+
+  // Sync from Firebase then render
+  if(!fbRefP){render();return;}
+  Promise.all([
+    fbRefP.once('value').then(s=>s.val()),
+    fbRefC.once('value').then(s=>s.val())
+  ]).then(([fbP,fbC])=>{
+    // Merge progress — Firebase wins if newer, otherwise push local up
+    if(fbP&&fbP._ts){
+      const localP=loadP();
+      const localTs=localP.lastDate?new Date(localP.lastDate).getTime():0;
+      if(fbP._ts>localTs){
+        const merged={...mkP(),...fbP};delete merged._ts;
+        progress=merged;
+        localStorage.setItem(SK,JSON.stringify(progress));
+      }
+    } else if(progress.lastDate){
+      // Firebase empty but local has data — push it up
+      fbRefP.set({...progress,_ts:Date.now()});
+    }
+    // Merge custom words — Firebase wins if newer, otherwise push local up
+    if(fbC&&fbC._ts&&fbC.data){
+      const localCTs=parseInt(localStorage.getItem(SK+"_c_ts")||"0");
+      if(fbC._ts>localCTs){
+        customWords=Array.isArray(fbC.data)?fbC.data:Object.values(fbC.data);
+        localStorage.setItem(SK+"_c",JSON.stringify(customWords));
+      }
+    } else if(customWords.length>0){
+      // Firebase empty but local has custom words — push them up
+      fbRefC.set({data:customWords,_ts:Date.now()});
+    }
+    render();
+  }).catch(()=>render());
 }).catch(()=>render());
 </script>
 </body>
