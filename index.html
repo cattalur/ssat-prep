@@ -492,11 +492,6 @@ function shortDef(def){
   let s=def.split(';')[0].trim();
   // Remove leading "To " for verbs
   s=s.replace(/^To\s+/i,'');
-  // If still long, take up to first comma — but only if result is meaningful (3+ words)
-  if(s.split(' ').length>6){const c=s.split(',')[0].trim();if(c.split(' ').length>=2)s=c;}
-  // If still long, take first 6 words and add ellipsis
-  const words=s.split(' ');
-  if(words.length>6)s=words.slice(0,6).join(' ')+'…';
   // Lowercase first letter
   return s.charAt(0).toLowerCase()+s.slice(1);
 }
