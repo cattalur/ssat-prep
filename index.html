@@ -124,7 +124,7 @@ const fbRefC = familyCode ? fbDb.ref('families/' + familyCode + '/customWords') 
 
 // ── STORAGE ───────────────────────────────────────────────────
 const SK="ssat_prep_v4";
-const mkP=()=>({vh:{},ah:{},rh:{},streak:0,lastDate:null,xp:0,learned:{vocabIds:[],rootIds:[]}});
+const mkP=()=>({vh:{},ah:{},rh:{},streak:0,lastDate:null,xp:0,learned:{vocabIds:[],rootIds:[]},advancedUnlocked:false});
 const loadP=()=>{try{return{...mkP(),...JSON.parse(localStorage.getItem(SK)||"{}")}}catch{return mkP()}};
 const loadC=()=>{try{return JSON.parse(localStorage.getItem(SK+"_c")||"[]")}catch{return[]}};
 const loadCR=()=>{try{return JSON.parse(localStorage.getItem(SK+"_cr")||"[]")}catch{return[]}};
@@ -402,6 +402,28 @@ function toggleRootLearned(id){ensureLearned();const a=progress.learned.rootIds;
 function markVocabLearned(id){ensureLearned();if(!progress.learned.vocabIds.includes(id))progress.learned.vocabIds.push(id);saveP(progress);render();}
 function markRootLearned(id){ensureLearned();if(!progress.learned.rootIds.includes(id))progress.learned.rootIds.push(id);saveP(progress);render();}
 
+// ── ADVANCED LEVEL GATING ────────────────────────────────────
+function isAdvancedWord(w){return(w.lvl||2)>=4;}
+function isMastered(h){if(!h)return false;const total=h.c+h.i;return total>=3&&h.c/total>=0.8;}
+function getMiddleMastery(){
+  ensureLearned();
+  const middleVocab=allVocab().filter(w=>w.d&&!isAdvancedWord(w)&&isVocabLearned(w.id));
+  const middleRoots=ROOTS.filter(r=>isRootLearned(r.id));
+  const total=middleVocab.length+middleRoots.length;
+  if(total===0)return{pct:0,mastered:0,total:0};
+  let mastered=0;
+  middleVocab.forEach(w=>{if(isMastered(progress.vh[w.id]))mastered++;});
+  middleRoots.forEach(r=>{if(isMastered(progress.rh[r.id]))mastered++;});
+  return{pct:Math.round(mastered/total*100),mastered,total};
+}
+function isAdvancedUnlocked(){
+  if(progress.advancedUnlocked)return true;
+  const m=getMiddleMastery();
+  return m.total>=20&&m.pct>=80;
+}
+function unlockAdvanced(){progress.advancedUnlocked=true;saveP(progress);render();}
+function lockAdvanced(){progress.advancedUnlocked=false;saveP(progress);render();}
+
 // ── MY WORDS (browsable learned list) ────────────────────────
 let pasteMode=false,pasteText="",pasteErr="",pasteSuccess="";
 function renderMyWords(){
@@ -423,6 +445,8 @@ function renderMyWords(){
     <p class="muted" style="margin-top:8px;font-size:11px">Words without definitions will be imported but won't appear in quizzes until you add a definition.</p>`;
   }
 
+  const mastery=getMiddleMastery();
+  const advUnlocked=isAdvancedUnlocked();
   return`<h1 style="margin-bottom:4px">✅ My Words</h1>
   <p class="muted" style="margin-bottom:6px">Mark words and roots you know. They'll appear in your quiz!</p>
   <div style="display:flex;gap:8px;margin-bottom:12px">
@@ -430,6 +454,15 @@ function renderMyWords(){
     <div style="flex:1;background:linear-gradient(135deg,#8b5cf6,#6d28d9);border-radius:12px;padding:10px;text-align:center;color:#fff"><div style="font-size:22px;font-weight:900">${vCount}</div><div style="font-size:10px;opacity:.85">Words</div></div>
     <div style="flex:1;background:linear-gradient(135deg,#10b981,#059669);border-radius:12px;padding:10px;text-align:center;color:#fff"><div style="font-size:22px;font-weight:900">${rCount}</div><div style="font-size:10px;opacity:.85">Roots</div></div>
   </div>
+  ${mastery.total>0?`<div class="card" style="margin-bottom:12px;background:${advUnlocked?'#f0fdf4':'#eff6ff'};border:2px solid ${advUnlocked?'#86efac':'#bfdbfe'}">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <div style="font-weight:800;font-size:13px;color:${advUnlocked?'#14532d':'#1e3a8a'}">${advUnlocked?'🎓 Middle Level Mastered':'📈 Middle Level Mastery'}</div>
+      <div style="font-size:12px;font-weight:800;color:${advUnlocked?'#16a34a':'#3b82f6'}">${mastery.mastered}/${mastery.total} (${mastery.pct}%)</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${mastery.pct}%;background:${advUnlocked?'#16a34a':'#3b82f6'}"></div></div>
+    <div style="font-size:11px;color:#6b7280;margin-top:6px">${advUnlocked?'Advanced words are now in your quizzes! 🌟':`Master 80% of middle-level words (need ${Math.max(0,Math.ceil(mastery.total*0.8)-mastery.mastered)} more) to unlock advanced words.`}</div>
+    <div style="margin-top:8px;font-size:11px"><label style="cursor:pointer;display:flex;align-items:center;gap:6px"><input type="checkbox" ${progress.advancedUnlocked?'checked':''} onchange="if(this.checked)unlockAdvanced();else lockAdvanced()" style="margin:0"> Force-include advanced words now</label></div>
+  </div>`:''}
   <div class="tab-row">
     <button class="tab${mwTab==='vocab'?' active':''}" onclick="mwTab='vocab';render()">Words (${vCount}/${totalV})</button>
     <button class="tab${mwTab==='roots'?' active':''}" onclick="mwTab='roots';render()">Roots (${rCount}/${totalR})</button>
@@ -440,9 +473,10 @@ function renderMyWords(){
   </div>
   ${mwTab==='vocab'?filtered.map(w=>{
     const known=isVocabLearned(w.id);
+    const adv=isAdvancedWord(w);
     return`<div style="display:flex;align-items:center;gap:10px;background:#fff;border:2px solid ${known?'#6ee7b7':'#e5e7eb'};border-radius:12px;padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:border-color .15s" onclick="toggleVocabLearned(${typeof w.id==='string'?("'"+w.id+"'"):w.id})">
       <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:${known?'#dcfce7':'#f3f4f6'};color:${known?'#16a34a':'#d1d5db'};border:2px solid ${known?'#6ee7b7':'#e5e7eb'}">${known?'✓':'○'}</div>
-      <div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14px;color:#0f2545">${w.w}</div><div class="muted" style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.d}</div></div>
+      <div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14px;color:#0f2545;display:flex;align-items:center;gap:6px">${w.w}${adv?'<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:#ede9fe;color:#6d28d9;letter-spacing:.5px">ADV</span>':''}</div><div class="muted" style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.d}</div></div>
       ${w.root?'<span class="chip" style="font-size:10px">'+w.root+'</span>':''}
     </div>`;
   }).join('')||'<p class="muted" style="text-align:center;padding:20px">No words match your search.</p>'
@@ -499,7 +533,8 @@ function shortDef(def){
 function generateLearnedQuiz(){
   ensureLearned();
   const items=[];const seen=new Set();
-  const learnedVocab=allVocab().filter(w=>isVocabLearned(w.id)&&w.d);
+  const includeAdv=isAdvancedUnlocked();
+  const learnedVocab=allVocab().filter(w=>isVocabLearned(w.id)&&w.d&&(includeAdv||!isAdvancedWord(w)));
   const allDefs=allVocab().filter(w=>w.d);
   learnedVocab.forEach(w=>{
     const key=w.w.toLowerCase();if(seen.has(key))return;seen.add(key);
@@ -528,7 +563,8 @@ function generateLearnedQuiz(){
 }
 
 function generateWrongWordsQuiz(){
-  const missed=getMissedWords();
+  const includeAdv=isAdvancedUnlocked();
+  const missed=getMissedWords().filter(w=>includeAdv||!isAdvancedWord(w));
   const allDefs=allVocab().filter(w=>w.d);
   const items=[];const seen=new Set();
   missed.forEach(w=>{
@@ -581,7 +617,8 @@ function getMissedWords(){
 }
 
 function startWeeklyReview(){
-  const missed=getMissedWords();
+  const includeAdv=isAdvancedUnlocked();
+  const missed=getMissedWords().filter(w=>includeAdv||!isAdvancedWord(w));
   const allDefs=allVocab().filter(w=>w.d);
   const items=[];const seen=new Set();
   missed.forEach(w=>{
@@ -656,12 +693,15 @@ function renderMyQuiz(){
   const vCount=progress.learned.vocabIds.length,rCount=progress.learned.rootIds.length;
   const totalLearned=vCount+rCount;
 
-  const wrongCount=getMissedWords().length;
+  const wrongCount=getMissedWords().filter(w=>isAdvancedUnlocked()||!isAdvancedWord(w)).length;
+  const mastery=getMiddleMastery();
+  const advUnlocked=isAdvancedUnlocked();
   // Not started yet — show launch screen
   if(mqQuestions.length===0&&!mqDone){
     const canQuiz=totalLearned>=4;
     return`<h1 style="margin-bottom:4px">🧠 My Quiz</h1>
     <p class="muted" style="margin-bottom:18px">Test yourself on words and roots you've marked as learned!</p>
+    ${mastery.total>0?`<div style="background:${advUnlocked?'#f0fdf4':'#eff6ff'};border:2px solid ${advUnlocked?'#86efac':'#bfdbfe'};border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:12px"><div style="font-weight:800;color:${advUnlocked?'#14532d':'#1e3a8a'};margin-bottom:4px">${advUnlocked?'🎓 Advanced unlocked · quizzes include all levels':'📈 Middle Level — '+mastery.pct+'% mastered'}</div><div style="color:#6b7280">${advUnlocked?'':'Quizzes only show middle-level words until you master 80%.'}</div></div>`:''}
     <div class="card" style="text-align:center;padding:24px">
       <div style="font-size:48px;margin-bottom:12px">${canQuiz?'🚀':'📝'}</div>
       <div style="font-size:20px;font-weight:900;color:#0f2545;margin-bottom:4px">${totalLearned} items learned</div>
