@@ -498,31 +498,57 @@ function shortDef(def){
 
 function generateLearnedQuiz(){
   ensureLearned();
-  const items=[];
-  // Vocab questions — SSAT synonym format
+  const items=[];const seen=new Set();
   const learnedVocab=allVocab().filter(w=>isVocabLearned(w.id)&&w.d);
   const allDefs=allVocab().filter(w=>w.d);
   learnedVocab.forEach(w=>{
+    const key=w.w.toLowerCase();if(seen.has(key))return;seen.add(key);
     const ans=shortDef(w.d);
     const pool=allDefs.filter(v=>v.id!==w.id&&shortDef(v.d)!==ans);
     const distractors=pool.sort(()=>Math.random()-.5).slice(0,4).map(v=>shortDef(v.d));
     const choices=[ans,...distractors].sort(()=>Math.random()-.5);
-    items.push({type:'vocab',word:w.w.toUpperCase(),answer:ans,choices,fullDef:w.d,tip:w.ex,root:w.root,id:w.id});
+    items.push({type:'vocab',word:w.w.toUpperCase(),answer:ans,choices,fullDef:w.d,tip:w.ex,root:w.root,id:w.id,lvl:w.lvl||2});
   });
-  // Root questions — same format
   const learnedRoots=ROOTS.filter(r=>isRootLearned(r.id));
   learnedRoots.forEach(r=>{
+    const key=r.root.toLowerCase();if(seen.has(key))return;seen.add(key);
     const pool=ROOTS.filter(x=>x.id!==r.id);
     const distractors=pool.sort(()=>Math.random()-.5).slice(0,4).map(x=>x.meaning);
     const choices=[r.meaning,...distractors].sort(()=>Math.random()-.5);
-    items.push({type:'root',word:r.root.toUpperCase(),answer:r.meaning,choices,fullDef:r.meaning,tip:r.sentence,words:r.words,id:r.id});
+    items.push({type:'root',word:r.root.toUpperCase(),answer:r.meaning,choices,fullDef:r.meaning,tip:r.sentence,words:r.words,id:r.id,lvl:2});
   });
-  // Shuffle and pick up to 30 — no repeat words
-  return items.sort(()=>Math.random()-.5).slice(0,30);
+  // Deprioritize words quizzed in the last 7 days
+  const WEEK=7*24*60*60*1000;const now=Date.now();
+  items.forEach(it=>{const h=progress.vh[it.id]||progress.rh[it.id];it._lastT=h&&h.t?h.t:0;});
+  const fresh=items.filter(it=>now-it._lastT>=WEEK);
+  const recent=items.filter(it=>now-it._lastT<WEEK);
+  fresh.sort(()=>Math.random()-.5);
+  recent.sort(()=>Math.random()-.5);
+  return[...fresh,...recent].slice(0,30);
 }
 
+function generateWrongWordsQuiz(){
+  const missed=getMissedWords();
+  const allDefs=allVocab().filter(w=>w.d);
+  const items=[];const seen=new Set();
+  missed.forEach(w=>{
+    if(!w.d)return;
+    const key=w.w.toLowerCase();if(seen.has(key))return;seen.add(key);
+    const ans=shortDef(w.d);
+    const pool=allDefs.filter(v=>v.id!==w.id&&shortDef(v.d)!==ans);
+    const distractors=pool.sort(()=>Math.random()-.5).slice(0,4).map(v=>shortDef(v.d));
+    const choices=[ans,...distractors].sort(()=>Math.random()-.5);
+    items.push({type:'vocab',word:w.w.toUpperCase(),answer:ans,choices,fullDef:w.d,tip:w.ex,root:w.root,id:w.id,lvl:w.lvl||2,missRate:w.missRate,misses:w.i,attempts:w.c+w.i});
+  });
+  return items.slice(0,30);
+}
+
+let mqMode='learned';
 function startMyQuiz(){
-  mqQuestions=generateLearnedQuiz();mqIdx=0;mqChosen=null;mqScore={c:0,t:0};mqDone=false;mqResults=[];go('myquiz');
+  mqQuestions=generateLearnedQuiz();mqIdx=0;mqChosen=null;mqScore={c:0,t:0};mqDone=false;mqResults=[];mqMode='learned';go('myquiz');
+}
+function startWrongWordsQuiz(){
+  mqQuestions=generateWrongWordsQuiz();mqIdx=0;mqChosen=null;mqScore={c:0,t:0};mqDone=false;mqResults=[];mqMode='wrong';go('myquiz');
 }
 
 function answerMyQuiz(i){
@@ -536,7 +562,7 @@ function answerMyQuiz(i){
     progress.vh[q.id]={c:h.c+(correct?1:0),i:h.i+(correct?0:1),t:Date.now()};
   }
   addXP(correct?10:2);
-  mqResults.push({word:q.word,type:q.type,correct});
+  mqResults.push({word:q.word,type:q.type,correct,lvl:q.lvl||2});
   render();
 }
 
@@ -557,8 +583,10 @@ function getMissedWords(){
 function startWeeklyReview(){
   const missed=getMissedWords();
   const allDefs=allVocab().filter(w=>w.d);
-  const items=[];
+  const items=[];const seen=new Set();
   missed.forEach(w=>{
+    if(!w.d)return;
+    const key=w.w.toLowerCase();if(seen.has(key))return;seen.add(key);
     const ans=shortDef(w.d);
     const pool=allDefs.filter(v=>v.id!==w.id&&shortDef(v.d)!==ans);
     const distractors=pool.sort(()=>Math.random()-.5).slice(0,4).map(v=>shortDef(v.d));
@@ -628,6 +656,7 @@ function renderMyQuiz(){
   const vCount=progress.learned.vocabIds.length,rCount=progress.learned.rootIds.length;
   const totalLearned=vCount+rCount;
 
+  const wrongCount=getMissedWords().length;
   // Not started yet — show launch screen
   if(mqQuestions.length===0&&!mqDone){
     const canQuiz=totalLearned>=4;
@@ -637,23 +666,32 @@ function renderMyQuiz(){
       <div style="font-size:48px;margin-bottom:12px">${canQuiz?'🚀':'📝'}</div>
       <div style="font-size:20px;font-weight:900;color:#0f2545;margin-bottom:4px">${totalLearned} items learned</div>
       <div class="muted" style="margin-bottom:16px">${vCount} vocab word${vCount!==1?'s':''} · ${rCount} root${rCount!==1?'s':''}</div>
-      ${canQuiz?`<button class="btn btn-primary" onclick="startMyQuiz()">Start Quiz (10 questions) →</button>`
+      ${canQuiz?`<button class="btn btn-primary" onclick="startMyQuiz()">Start Quiz (up to 30 questions) →</button>`
       :`<p style="color:#d97706;font-size:13px;font-weight:700;margin-bottom:10px">Mark at least 4 words or roots as learned to start a quiz.</p>
         <button class="btn btn-secondary" onclick="go('mywords')">Go Mark Words →</button>`}
     </div>
+    ${wrongCount>=1?`<div class="card" style="text-align:center;padding:24px;border:2px solid #fca5a5;background:#fef2f2;margin-top:10px">
+      <div style="font-size:48px;margin-bottom:12px">🔴</div>
+      <div style="font-size:20px;font-weight:900;color:#991b1b;margin-bottom:4px">${wrongCount} wrong word${wrongCount!==1?'s':''}</div>
+      <div class="muted" style="margin-bottom:16px">Practice the words you've gotten wrong</div>
+      <button class="btn btn-primary" style="background:#dc2626" onclick="startWrongWordsQuiz()">Quiz Wrong Words →</button>
+    </div>`:''}
     <button class="btn btn-secondary" style="margin-top:10px" onclick="go('mywords')">Manage Learned Words</button>`;
   }
 
   // Done screen
   if(mqDone){
     const pct=mqScore.t>0?Math.round(mqScore.c/mqScore.t*100):0;
+    const wrongInQuiz=mqResults.filter(r=>!r.correct);
     return`<div class="done-screen">
       <div style="font-size:60px">${pct>=80?'🎉':pct>=60?'👍':'💪'}</div>
-      <h1 style="margin:12px 0 6px">Quiz Complete!</h1>
+      <h1 style="margin:12px 0 6px">${mqMode==='wrong'?'Wrong Words Review':'Quiz'} Complete!</h1>
       <p style="font-size:28px;font-weight:900;color:${pct>=80?'#16a34a':pct>=60?'#d97706':'#dc2626'};margin-bottom:4px">${mqScore.c}/${mqScore.t}</p>
-      <p class="muted" style="margin-bottom:20px">${pct}% correct</p>
-      ${mqResults.map(r=>`<div class="result-row"><span style="font-weight:700">${r.type==='root'?'🌿 ':'📖 '}${r.word}</span><span style="font-size:13px;color:${r.correct?'#16a34a':'#dc2626'}">${r.correct?'✓ Correct':'✗ Missed'}</span></div>`).join('')}
-      <button class="btn btn-primary" style="margin-top:16px" onclick="startMyQuiz()">Quiz Again →</button>
+      <p class="muted" style="margin-bottom:12px">${pct}% correct</p>
+      ${(()=>{const l2=mqResults.filter(r=>r.lvl===2),l3=mqResults.filter(r=>r.lvl>=3),l2c=l2.filter(r=>r.correct).length,l3c=l3.filter(r=>r.correct).length;return`<div style="display:flex;gap:8px;margin-bottom:16px;justify-content:center;flex-wrap:wrap">${l2.length?`<div style="background:#dbeafe;border-radius:12px;padding:10px 16px;text-align:center"><div style="font-size:18px;font-weight:900;color:#1e40af">${l2c}/${l2.length}</div><div style="font-size:11px;font-weight:700;color:#3b82f6">Level 2</div></div>`:''}${l3.length?`<div style="background:#fee2e2;border-radius:12px;padding:10px 16px;text-align:center"><div style="font-size:18px;font-weight:900;color:#991b1b">${l3c}/${l3.length}</div><div style="font-size:11px;font-weight:700;color:#dc2626">Level 3</div></div>`:''}</div>`;})()}
+      ${mqResults.map(r=>`<div class="result-row"><span style="font-weight:700">${r.type==='root'?'🌿 ':'📖 '}${r.word}</span><span style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;font-weight:800;padding:1px 6px;border-radius:4px;background:${r.lvl>=3?'#fee2e2':'#dbeafe'};color:${r.lvl>=3?'#991b1b':'#1e40af'}">L${r.lvl||2}</span><span style="font-size:13px;color:${r.correct?'#16a34a':'#dc2626'}">${r.correct?'✓':'✗'}</span></span></div>`).join('')}
+      ${wrongInQuiz.length>0?`<button class="btn btn-primary" style="margin-top:16px;background:#dc2626" onclick="startWrongWordsQuiz()">Quiz Wrong Words (${getMissedWords().length}) →</button>`:''}
+      <button class="btn btn-primary" style="margin-top:8px" onclick="startMyQuiz()">Quiz Again →</button>
       <button class="btn btn-secondary" style="margin-top:8px" onclick="mqQuestions=[];mqDone=false;go('home')">Back to Home</button>
     </div>`;
   }
@@ -665,7 +703,7 @@ function renderMyQuiz(){
   const ansIdx=q.choices.indexOf(q.answer);
   return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px"><div class="progress-bar" style="flex:1"><div class="progress-fill" style="width:${pct}%;background:#3b82f6"></div></div><span class="muted">${mqIdx+1}/${mqQuestions.length}</span><span class="badge" style="background:#fef9c3;color:#854d0e">${mqScore.c}/${mqScore.t}</span></div>
   <div style="margin:18px 0 14px">
-    <span style="font-size:11px;color:#9ca3af;font-weight:700;letter-spacing:.5px">${q.type==='root'?'ROOT WORD':'SYNONYM'}</span>
+    <div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:#9ca3af;font-weight:700;letter-spacing:.5px">${q.type==='root'?'ROOT WORD':'SYNONYM'}</span><span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:6px;background:${q.lvl>=3?'#fee2e2':'#dbeafe'};color:${q.lvl>=3?'#991b1b':'#1e40af'}">LVL ${q.lvl||2}</span></div>
     <h2 style="font-size:24px;font-weight:900;color:#0f2545;margin-top:4px">${q.word}:</h2>
   </div>
   ${q.choices.map((c,i)=>{let cls='answer-btn';if(answered){if(i===ansIdx)cls+=' correct';else if(i===mqChosen)cls+=' wrong';}return`<button class="${cls}" ${answered?'disabled':''} onclick="answerMyQuiz(${i})"><span class="choice-letter">${LETTERS[i]}</span>${c}</button>`;}).join('')}
@@ -696,7 +734,7 @@ function renderProgress(){
   ${empty?`<div style="text-align:center;padding:40px"><div style="font-size:48px">🌱</div><p class="muted" style="margin-top:12px">Start practicing to see your progress here!</p></div>`:`
   <div class="card"><h2 style="font-size:14px;margin-bottom:14px">Section Performance</h2>${bar('Vocabulary',cV,tV)}${bar('Analogies',cA,tA)}${bar('Reading Comprehension',cR,tR)}</div>
   ${Object.keys(typeStats).length>0?`<div class="card"><h2 style="font-size:14px;margin-bottom:14px">Analogy Types — Where to Focus</h2>${Object.entries(typeStats).sort((a,b)=>(b[1].t>0?b[1].c/b[1].t:0)-(a[1].t>0?a[1].c/a[1].t:0)).map(([t,s])=>bar(t,s.c,s.t)).join('')}</div>`:''}
-  ${hardest.length>0?`<div class="card" style="border:2px solid #fed7aa;background:#fff8f0"><h2 style="font-size:14px;color:#c2410c;margin-bottom:12px">⚠️ Focus Words — Needs More Practice</h2>${hardest.map(w=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #fed7aa"><div><span style="font-weight:700;color:#374151">${w.w}</span>${w.custom?'<span class="badge" style="background:#fce7f3;color:#9d174d;margin-left:6px;font-size:10px">MY WORD</span>':''}<span class="muted" style="font-size:12px;margin-left:8px;display:block">${w.d.substring(0,40)}...</span></div><span style="font-size:12px;color:#dc2626;font-weight:800;flex-shrink:0">${Math.round(w.i/(w.c+w.i)*100)}% miss</span></div>`).join('')}</div>`:''}
+  ${hardest.length>0?`<div class="card" style="border:2px solid #fed7aa;background:#fff8f0"><h2 style="font-size:14px;color:#c2410c;margin-bottom:12px">⚠️ Focus Words — Needs More Practice</h2>${hardest.map(w=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #fed7aa"><div><span style="font-weight:700;color:#374151">${w.w}</span>${w.custom?'<span class="badge" style="background:#fce7f3;color:#9d174d;margin-left:6px;font-size:10px">MY WORD</span>':''}<span class="muted" style="font-size:12px;margin-left:8px;display:block">${w.d.split(';')[0]}</span></div><span style="font-size:12px;color:#dc2626;font-weight:800;flex-shrink:0">${Math.round(w.i/(w.c+w.i)*100)}% miss</span></div>`).join('')}</div>`:''}
   <button class="btn btn-secondary" style="margin-top:8px" onclick="if(confirm('Reset all progress? This cannot be undone.')){progress=mkP();saveP(progress);render()}">Reset Progress</button>`}`;
 }
 
@@ -838,7 +876,7 @@ function renderParentDash(){
     ${[1,2,3].map(l=>{const s=lvlStats[l],t=s.c+s.i;return t>0?bar(['Level 1 — Easier','Level 2 — Medium','Level 3 — Hardest'][l-1],s.c,t):'';}).join('')}
     ${topMiss.length>0?`<div style="margin-top:14px"><p style="font-size:12px;font-weight:800;color:#374151;margin-bottom:8px">Most-missed words (highest miss rate first):</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-      ${topMiss.map(w=>`<div style="background:#f9fafb;border-radius:8px;padding:8px 10px"><div style="font-weight:800;font-size:13px;color:#0f2545">${w.w}</div><div style="font-size:10px;color:#9ca3af">${w.d.substring(0,30)}...</div><div style="font-size:12px;font-weight:800;color:${w.rate>=60?'#dc2626':'#d97706'};margin-top:2px">${w.rate}% miss rate</div></div>`).join('')}
+      ${topMiss.map(w=>`<div style="background:#f9fafb;border-radius:8px;padding:8px 10px"><div style="font-weight:800;font-size:13px;color:#0f2545">${w.w}</div><div style="font-size:10px;color:#9ca3af">${w.d.split(';')[0]}</div><div style="font-size:12px;font-weight:800;color:${w.rate>=60?'#dc2626':'#d97706'};margin-top:2px">${w.rate}% miss rate</div></div>`).join('')}
       </div></div>`:''}
     ${rootArr.length>0?`<div style="background:#f0fdf4;border-radius:10px;padding:10px 12px;margin-top:12px">
       <p style="font-size:12px;font-weight:800;color:#166534;margin-bottom:6px">🌿 Root word patterns in missed words:</p>
